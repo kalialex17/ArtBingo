@@ -5,15 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Camera Capture & Object Detection</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* CSS for the Bingo Grid */
+        #bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 300px;
+            margin: 20px auto;
+        }
+
+        .grid-cell {
+            background-color: #f0f0f0;
+            border: 2px solid #ddd;
+            text-align: center;
+            padding: 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .grid-cell.completed {
+            background-color: #cfc;
+            border-color: #8f8;
+            color: #555;
+            pointer-events: none;
+        }
+    </style>
 </head>
 <body>
     <h1>Camera Capture & Object Detection</h1>
 
+    <!-- Camera Capture Section -->
     <div id="camera-section">
         <video id="camera-preview" autoplay playsinline></video>
         <button id="capture-btn">Capture Photo</button>
     </div>
 
+    <!-- Result Section -->
     <div id="result-section" style="display: none;">
         <canvas id="captured-image"></canvas>
         <button id="detect-btn">Detect Objects</button>
@@ -22,6 +50,20 @@
 
     <div id="error-message"></div>
     <div id="detection-results"></div>
+
+    <!-- Bingo Grid Section -->
+    <h2>Bingo Grid</h2>
+    <div id="bingo-grid">
+        <div class="grid-cell">Find a flower</div>
+        <div class="grid-cell">Find a fish</div>
+        <div class="grid-cell">Find a person</div>
+        <div class="grid-cell">Find a key</div>
+        <div class="grid-cell">Find a bed</div>
+        <div class="grid-cell">Find a bottle</div>
+        <div class="grid-cell">Find a book</div>
+        <div class="grid-cell">Find a chair</div>
+        <div class="grid-cell">Find  stairs</div>
+    </div>
 
     <!-- New Button for API Key -->
     <button id="api-key-btn">Set API Key</button>
