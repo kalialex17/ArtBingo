@@ -203,3 +203,5 @@ detectButton.addEventListener('click', detectObjects);
 retryButton.addEventListener('click', retryCapture);
 
 document.addEventListener('DOMContentLoaded', initializeCamera);
+
+// hello people
