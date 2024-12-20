@@ -6,13 +6,7 @@
     <title>Art Bingo Game</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Style for managing pages */
-        .page {
-            display: none;
-        }
-        .page.active {
-            display: block;
-        }
+        /* Grid Styles */
         #bingo-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -26,32 +20,37 @@
             text-align: center;
             padding: 20px;
             font-size: 16px;
-            cursor: pointer;
+            cursor: pointer; /* Makes it clear that these are clickable*/
+        }
+        .grid-cell:focus {
+            outline: 2px solid #007BFF;
         }
         .grid-cell.completed {
             background-color: #cfc;
+     
             border-color: #8f8;
-            color: #555;
+        
             pointer-events: none;
         }
     </style>
 </head>
 <body>
-    <!-- Bingo Page -->
+    
     <div id="bingo-page" class="page active">
-        <h1>Bingo Game</h1>
+        <h1>Art Bingo Game</h1>
         <div id="bingo-grid">
-             <div class="grid-cell">Find a flower</div>
-        <div class="grid-cell">Find a fish</div>
-        <div class="grid-cell">Find a person</div>
-        <div class="grid-cell">Find a key</div>
-        <div class="grid-cell">Find a bed</div>
-        <div class="grid-cell">Find a bottle</div>
-        <div class="grid-cell">Find a book</div>
-        <div class="grid-cell">Find a chair</div>
-        <div class="grid-cell">Find  stairs</div>
-        </div>
+            <!-- Each grid cell behaves like a button -->
+            <button class="grid-cell" data-task="Find a flower">Find a flower</button>
+            <button class="grid-cell" data-task="Find a fish">Find a fish</button>
+            <button class="grid-cell" data-task="Find a person">Find a person</button>
+            <button class="grid-cell" data-task="Find a key">Find a key</button>
+            <button class="grid-cell" data-task="Find a bed">Find a bed</button>
+            <button class="grid-cell" data-task="Find a bottle">Find a bottle</button>
+            <button class="grid-cell" data-task="Find a book">Find a book</button>
+            <button class="grid-cell" data-task="Find a chair">Find a chair</button>
+            <button class="grid-cell" data-task="Find stairs">Find stairs</button>
     </div>
+      </div>
 
     <!-- Camera Page -->
     <div id="camera-page" class="page">
