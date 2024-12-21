@@ -30,9 +30,11 @@ body {
 .error {
     color: red;
 }
-.page {
-    display: none;
-}
+
 .page.active {
     display: block;
+}
+
+#camera-page {
+    border: 3px solid red;
 }
