@@ -145,9 +145,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     gridCells.forEach((cell, index) => {
         cell.addEventListener('click', () => {
-            const message = `IT WORKS DAMMIT ${index + 1}`;
-            console.log(message);
-            alert(message);
+            console.log(`Navigating to camera page from cell ${index + 1}`);
+            showPage(cameraPage);
         });
     });
 
@@ -156,16 +155,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (storedApiKey) HUGGING_FACE_API_TOKEN = storedApiKey;
     initializeCamera();
 
-    // ---------------- Event Listeners -----------------
-    apiKeyButton.addEventListener('click', showApiKeyPopup);
-    saveApiKeyButton.addEventListener('click', saveApiKey);
-    captureButton.addEventListener('click', capturePhoto);
-    detectButton.addEventListener('click', detectObjects);
-    retryButton.addEventListener('click', retryCapture);
-  
+    // ---------------- Page Navigation -----------------
     const bingoPage = document.getElementById("bingo-page");
     const cameraPage = document.getElementById("camera-page");
-    const switchToCameraButton = document.getElementById("switch-to-camera");
 
     // Function to switch between pages
     function showPage(pageToShow) {
@@ -175,9 +167,4 @@ document.addEventListener("DOMContentLoaded", () => {
         // Show the selected page
         pageToShow.classList.add("active");
     }
-
-    // Event listener for switching to the camera page
-    switchToCameraButton.addEventListener("click", () => {
-        showPage(cameraPage);
-    });
 });
