@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Art Bingo Game</title>
+    <title>Camera Capture & Object Detection</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Grid Styles */
+        /* CSS for the Bingo Grid */
         #bingo-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -20,54 +20,59 @@
             text-align: center;
             padding: 20px;
             font-size: 16px;
-            cursor: pointer; /* Makes it clear that these are clickable*/
-        }
-        .grid-cell:focus {
-            outline: 2px solid #007BFF;
+            cursor: pointer;
         }
         .grid-cell.completed {
             background-color: #cfc;
-     
             border-color: #8f8;
-        
+            color: #555;
             pointer-events: none;
         }
     </style>
 </head>
 <body>
-    
-    <div id="bingo-page" class="page active">
-        <h1>Art Bingo Game</h1>
-        <div id="bingo-grid">
-            <!-- Each grid cell behaves like a button -->
-            <button class="grid-cell" data-task="Find a flower">Find a flower</button>
-            <button class="grid-cell" data-task="Find a fish">Find a fish</button>
-            <button class="grid-cell" data-task="Find a person">Find a person</button>
-            <button class="grid-cell" data-task="Find a key">Find a key</button>
-            <button class="grid-cell" data-task="Find a bed">Find a bed</button>
-            <button class="grid-cell" data-task="Find a bottle">Find a bottle</button>
-            <button class="grid-cell" data-task="Find a book">Find a book</button>
-            <button class="grid-cell" data-task="Find a chair">Find a chair</button>
-            <button class="grid-cell" data-task="Find stairs">Find stairs</button>
-    </div>
-      </div>
+    <h1>Camera Capture & Object Detection</h1>
 
-    <!-- Camera Page -->
-    <div id="camera-page" class="page">
-        <h1>Camera Capture & Object Detection</h1>
-        <div id="camera-section">
-            <video id="camera-preview" autoplay playsinline></video>
-            <button id="capture-btn">Capture Photo</button>
+    <!-- Camera Capture Section -->
+    <div id="camera-section">
+        <video id="camera-preview" autoplay playsinline></video>
+        <button id="capture-btn">Capture Photo</button>
+    </div>
+
+    <!-- Result Section -->
+    <div id="result-section" style="display: none;">
+        <canvas id="captured-image"></canvas>
+        <button id="detect-btn">Detect Objects</button>
+        <button id="retry-btn">Retake Photo</button>
+    </div>
+
+    <div id="error-message"></div>
+    <div id="detection-results"></div>
+
+    <!-- Bingo Grid Section -->
+    <h2>Art Bingo Grid</h2>
+    <div id="bingo-grid">
+        <div class="grid-cell">Find a flower</div>
+        <div class="grid-cell">Find a fish</div>
+        <div class="grid-cell">Find a person</div>
+        <div class="grid-cell">Find a key</div>
+        <div class="grid-cell">Find a bed</div>
+        <div class="grid-cell">Find a bottle</div>
+        <div class="grid-cell">Find a book</div>
+        <div class="grid-cell">Find a chair</div>
+        <div class="grid-cell">Find  stairs</div>
+    </div>
+    <!-- New Button for API Key -->
+    <button id="api-key-btn">Set API Key</button>
+
+    <!-- Popup Modal -->
+    <div id="api-key-popup" class="popup" style="display: none;">
+        <div class="popup-content">
+            <label for="api-key-input">Enter your API Key:</label>
+            <input type="text" id="api-key-input" placeholder="API Key" />
+            <button id="save-api-key-btn">Save</button>
         </div>
-        <div id="result-section" style="display: none;">
-            <canvas id="captured-image"></canvas>
-            <button id="detect-btn">Detect Objects</button>
-            <button id="retry-btn">Retake Photo</button>
-        </div>
-        <div id="error-message"></div>
-        <div id="detection-results"></div>
     </div>
 
     <script src="script.js"></script>
 </body>
-</html>
