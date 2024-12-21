@@ -203,27 +203,3 @@ detectButton.addEventListener('click', detectObjects);
 retryButton.addEventListener('click', retryCapture);
 
 document.addEventListener('DOMContentLoaded', initializeCamera);
-
-// Add Bingo Grid Navigation Logic
-document.addEventListener("DOMContentLoaded", () => {
-    const bingoPage = document.getElementById("bingo-page");
-    const cameraPage = document.getElementById("camera-page");
-    const gridCells = document.querySelectorAll(".grid-cell");
-
-    // Function to switch pages
-    function showPage(pageToShow) {
-        document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
-        pageToShow.classList.add("active");
-    }
-
-    // Event listener for grid cells
-    gridCells.forEach(cell => {
-        cell.addEventListener("click", () => {
-            const task = cell.getAttribute("data-task");
-            console.log(`Navigating to camera for: ${task}`);
-            // Transition to camera page
-            showPage(cameraPage);
-        });
-    });
-
-});
