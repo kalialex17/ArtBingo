@@ -20,6 +20,21 @@ document.addEventListener("DOMContentLoaded", () => {
     let capturedImageBase64 = null;
     let originalImage = null;
 
+    // Mapping for correct answers per cell
+    const correctAnswers = {
+        'cell-1': 'flower',
+        'cell-2': 'fish',
+        'cell-3': 'person',
+        'cell-4': 'key',
+        'cell-5': 'bed',
+        'cell-6': 'bottle',
+        'cell-7': 'book',
+        'cell-8': 'chair',
+        'cell-9': 'stairs'
+    };
+
+    let activeCellId = null; // Track which cell is currently active
+
     // --------------- Initialize Camera -----------------
     async function initializeCamera() {
         try {
@@ -82,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
             }
             const results = await response.json();
-            displayDetectionResults(results);
+            processTopDetectionResult(results);
         } catch (error) {
             console.error('Full error object:', error);
             errorMessageElement.innerHTML = `<span class="error">Object Detection Error:</span> <br>${error.message}`;
@@ -90,37 +105,47 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // --------------- Display Detection Results ---------------
-    function displayDetectionResults(results) {
-        if (!results || results.length === 0) {
-            detectionResultsElement.textContent = 'No objects detected.';
-            return;
+    // --------------- Process Top Detection Result ---------------
+function processTopDetectionResult(results) {
+    if (!results || results.length === 0) {
+        detectionResultsElement.textContent = 'No objects detected.';
+        retryButton.style.display = 'block'; // Show Retry Button
+        return;
+    }
+
+    // Get the top result
+    const topResult = results.sort((a, b) => b.score - a.score)[0];
+    const { label, score } = topResult;
+
+    detectionResultsElement.textContent = `Detected: ${label} (Confidence: ${(score * 100).toFixed(2)}%)`;
+
+    // Check if the result matches the correct answer for the active cell
+    if (activeCellId && correctAnswers[activeCellId] === label.toLowerCase()) {
+        markCellAsCompleted(activeCellId);
+        retryButton.style.display = 'none'; // Hide Retry Button if successful
+    } else {
+        errorMessageElement.textContent = `The detected object "${label}" does not match the required object.`;
+        retryButton.style.display = 'block'; // Show Retry Button
+    }
+}
+
+    // --------------- Mark Cell as Completed ---------------
+    function markCellAsCompleted(cellId) {
+        const cell = document.getElementById(cellId);
+        if (cell) {
+            cell.classList.add('completed');
+            cell.removeEventListener('click', handleCellClick);
         }
-
-        const sortedResults = results.sort((a, b) => b.score - a.score);
-        const context = canvasElement.getContext('2d');
-        context.drawImage(originalImage, 0, 0, canvasElement.width, canvasElement.height);
-
-        const resultHTML = sortedResults.map(item => {
-            context.beginPath();
-            context.rect(item.box.xmin, item.box.ymin, item.box.xmax - item.box.xmin, item.box.ymax - item.box.ymin);
-            context.lineWidth = 3;
-            context.strokeStyle = 'red';
-            context.stroke();
-            context.font = '16px Arial';
-            context.fillStyle = 'red';
-            context.fillText(`${item.label} (${(item.score * 100).toFixed(2)}%)`, item.box.xmin, item.box.ymin - 10);
-            return `<div><strong>Object:</strong> ${item.label} <strong>Confidence:</strong> ${(item.score * 100).toFixed(2)}%</div>`;
-        }).join('<hr>');
-
-        detectionResultsElement.innerHTML = resultHTML;
     }
 
     // ---------------- Retry Capture -----------------
-    function retryCapture() {
-        initializeCamera();
-        capturedImageBase64 = null;
-    }
+   function retryCapture() {
+    initializeCamera();
+    capturedImageBase64 = null;
+    detectionResultsElement.textContent = '';
+    errorMessageElement.textContent = '';
+    retryButton.style.display = 'none'; // Hide Retry Button when retrying
+}
 
     // ---------------- API Key Handlers -----------------
     function showApiKeyPopup() {
@@ -143,28 +168,33 @@ document.addEventListener("DOMContentLoaded", () => {
     // ---------------- Grid Interactions -----------------
     const gridCells = Array.from(document.querySelectorAll('.grid-cell'));
 
-    gridCells.forEach((cell, index) => {
-        cell.addEventListener('click', () => {
-            console.log(`Navigating to camera page from cell ${index + 1}`);
-            showPage(cameraPage);
-        });
+    function handleCellClick(event) {
+        const cell = event.target;
+        activeCellId = cell.id; // Set the active cell ID
+        showPage(cameraPage);
+        initializeCamera();
+    }
+
+    gridCells.forEach(cell => {
+        cell.addEventListener('click', handleCellClick);
     });
 
     // ---------------- Startup -----------------
     const storedApiKey = localStorage.getItem('huggingFaceApiKey');
     if (storedApiKey) HUGGING_FACE_API_TOKEN = storedApiKey;
-    initializeCamera();
 
-    // ---------------- Page Navigation -----------------
+    // ---------------- Page Management -----------------
     const bingoPage = document.getElementById("bingo-page");
     const cameraPage = document.getElementById("camera-page");
 
-    // Function to switch between pages
     function showPage(pageToShow) {
-        // Hide all pages
         document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
-
-        // Show the selected page
         pageToShow.classList.add("active");
     }
+
+    apiKeyButton.addEventListener('click', showApiKeyPopup);
+    saveApiKeyButton.addEventListener('click', saveApiKey);
+    captureButton.addEventListener('click', capturePhoto);
+    detectButton.addEventListener('click', detectObjects);
+    retryButton.addEventListener('click', retryCapture);
 });

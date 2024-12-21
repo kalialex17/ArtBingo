@@ -51,8 +51,6 @@
             <div id="cell-8" class="grid-cell" data-target="camera">Find a chair</div>
             <div id="cell-9" class="grid-cell" data-target="camera">Find stairs</div>
         </div>
-
-        <!-- New Button for API Key -->
         <button id="api-key-btn">Set API Key</button>
     </div>
 
@@ -65,13 +63,13 @@
         </div>
         <!-- Result Section -->
         <div id="result-section" style="display: none;">
-            <canvas id="captured-image"></canvas>
-            <button id="detect-btn">Detect Objects</button>
-            <button id="retry-btn">Retake Photo</button>
-        </div>
-        <div id="error-message"></div>
-        <div id="detection-results"></div>
-    </div>
+    <canvas id="captured-image"></canvas>
+    <p id="detection-results"></p>
+    <p id="error-message"></p>
+    <button id="detect-btn">Detect Objects</button>
+    <button id="retry-btn">Retry</button> <!-- Single Retry Button -->
+</div>
+
 
     <!-- Popup Modal -->
     <div id="api-key-popup" class="popup" style="display: none;">
