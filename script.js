@@ -212,12 +212,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const gridCells = document.querySelectorAll(".grid-cell");
 
     function showPage(pageToShow) {
-        // Hide all pages
+        console.log("Showing page:", pageToShow.id);
         document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
-
-        // Show the selected page
         pageToShow.classList.add("active");
+        console.log("Added .active to:", pageToShow);
     }
+    
 
     // Add click event to grid cells
     gridCells.forEach(cell => {
