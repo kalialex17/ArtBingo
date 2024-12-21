@@ -22,13 +22,22 @@ let originalImage = null;
 
 async function initializeCamera() {
     try {
-        const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+            video: { 
+                facingMode: 'environment',
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            }
+        });
+
         videoElement.srcObject = mediaStream;
-        videoElement.play(); // Start video playback
-        console.log('Camera initialized successfully');
+        cameraSection.style.display = 'block';
+        resultSection.style.display = 'none';
+        detectionResultsElement.textContent = '';
+        errorMessageElement.textContent = '';
     } catch (error) {
+        errorMessageElement.textContent = `Camera access error: ${error.message}`;
         console.error('Camera initialization error:', error);
-        errorMessageElement.textContent = `Error accessing camera: ${error.message}`;
     }
 }
 
@@ -38,7 +47,7 @@ function capturePhoto() {
 
     const context = canvasElement.getContext('2d');
     context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
-    
+
     // Store original image for drawing bounding boxes later
     originalImage = new Image();
     originalImage.src = canvasElement.toDataURL('image/jpeg');
@@ -91,7 +100,7 @@ async function detectObjects() {
         displayDetectionResults(results);
     } catch (error) {
         console.error('Full error object:', error);
-        
+
         errorMessageElement.innerHTML = `
             <span class="error">Object Detection Error:</span>
             <br>${error.message}
@@ -194,13 +203,3 @@ detectButton.addEventListener('click', detectObjects);
 retryButton.addEventListener('click', retryCapture);
 
 document.addEventListener('DOMContentLoaded', initializeCamera);
-
-
-// New Logic: Bingo Grid Navigation
-document.querySelectorAll('.grid-cell').forEach(cell => {
-    cell.addEventListener('click', () => {
-        console.log('Navigating to the Camera Page...');
-        showPage(document.getElementById('camera-page'));
-    });
-});
-
