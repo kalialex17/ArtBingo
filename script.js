@@ -208,22 +208,24 @@ document.addEventListener('DOMContentLoaded', initializeCamera);
 // New Logic: Bingo Grid Navigation
 document.addEventListener("DOMContentLoaded", () => {
     const bingoPage = document.getElementById("bingo-page");
-    const cameraPage = document.getElementById("camera-page");
+    const cameraPage = document.getElementById("camera-page"); // Only one "camera-page" now
     const gridCells = document.querySelectorAll(".grid-cell");
 
     function showPage(pageToShow) {
-        console.log("Showing page:", pageToShow.id);
+        console.log("Attempting to show page:", pageToShow.id);
         document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
         pageToShow.classList.add("active");
-        console.log("Added .active to:", pageToShow);
+        console.log("Current active page:", pageToShow.id);
     }
-    
 
     // Add click event to grid cells
     gridCells.forEach(cell => {
         cell.addEventListener("click", () => {
-            console.log("Redirecting to the camera page...");
+            console.log("Grid cell clicked. Redirecting to the camera page...");
             showPage(cameraPage); // Redirect to the camera page
         });
     });
+
+    // Debugging logs to ensure initialization is complete
+    console.log("Page navigation initialized. Bingo Page and Camera Page ready.");
 });
