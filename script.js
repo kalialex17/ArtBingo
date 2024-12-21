@@ -207,30 +207,23 @@ document.addEventListener('DOMContentLoaded', initializeCamera);
 
 // New Logic: Bingo Grid Navigation
 document.addEventListener("DOMContentLoaded", () => {
-    // Page references
     const bingoPage = document.getElementById("bingo-page");
     const cameraPage = document.getElementById("camera-page");
     const gridCells = document.querySelectorAll(".grid-cell");
-    const detectionResultsElement = document.getElementById("detection-results"); // Optional display area
 
-    // Function to show specific pages
     function showPage(pageToShow) {
-        // Hide all pages, then show the selected page
+        // Hide all pages
         document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+
+        // Show the selected page
         pageToShow.classList.add("active");
     }
 
     // Add click event to grid cells
     gridCells.forEach(cell => {
         cell.addEventListener("click", () => {
-            const task = cell.textContent.trim(); // Get the task text from the cell
-            console.log(`Selected Task: ${task}`);
-
-            // Optionally display the task on the camera page
-            detectionResultsElement.innerHTML = `<strong>Task:</strong> ${task}`;
-
-            // Redirect to the camera page
-            showPage(cameraPage);
+            console.log("Redirecting to the camera page...");
+            showPage(cameraPage); // Redirect to the camera page
         });
     });
 });
