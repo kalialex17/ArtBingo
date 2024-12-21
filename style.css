@@ -30,3 +30,41 @@ body {
 .error {
     color: red;
 }
+/* CSS for managing the Bingo Grid */
+#bingo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-width: 300px;
+    margin: 20px auto;
+}
+
+.grid-cell {
+    background-color: #f0f0f0;
+    border: 2px solid #ddd;
+    text-align: center;
+    padding: 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.grid-cell:hover {
+    background-color: #e0e0e0;
+}
+
+.grid-cell.completed {
+    background-color: #cfc;
+    border-color: #8f8;
+    color: #555;
+    pointer-events: none;
+}
+
+#api-key-btn {
+    margin-top: 20px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
