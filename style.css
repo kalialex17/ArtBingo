@@ -5,12 +5,12 @@ body {
     padding: 20px;
     text-align: center;
 }
-#camera-preview, #captured-image {
-    max-width: 100%;
-    max-height: 400px;
-    margin: 20px 0;
-    background-color: #f0f0f0;
+#camera-preview {
+    display: block !important;
+    background: #000; /* Ensure background color helps visualize */
 }
+
+
 #capture-btn, #retry-btn, #detect-btn {
     padding: 10px 20px;
     margin: 10px;

@@ -22,22 +22,13 @@ let originalImage = null;
 
 async function initializeCamera() {
     try {
-        mediaStream = await navigator.mediaDevices.getUserMedia({
-            video: { 
-                facingMode: 'environment',
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
-            }
-        });
-
+        const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
         videoElement.srcObject = mediaStream;
-        cameraSection.style.display = 'block';
-        resultSection.style.display = 'none';
-        detectionResultsElement.textContent = '';
-        errorMessageElement.textContent = '';
+        videoElement.play(); // Start video playback
+        console.log('Camera initialized successfully');
     } catch (error) {
-        errorMessageElement.textContent = `Camera access error: ${error.message}`;
         console.error('Camera initialization error:', error);
+        errorMessageElement.textContent = `Error accessing camera: ${error.message}`;
     }
 }
 
@@ -228,4 +219,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Debugging logs to ensure initialization is complete
     console.log("Page navigation initialized. Bingo Page and Camera Page ready.");
+});
+
+console.log('Initializing camera...');
+initializeCamera();
+videoElement.addEventListener('playing', () => {
+    console.log('Camera feed is now playing.');
 });
