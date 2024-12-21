@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html>
 <body>
-    <video id="test-camera-preview" autoplay playsinline style="width: 100%; height: auto;"></video>
-    <script>
-        const video = document.getElementById('test-camera-preview');
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(stream => {
-                video.srcObject = stream;
-                video.play();
-                console.log('Camera feed started successfully');
-            })
-            .catch(err => console.error('Error accessing camera:', err));
+  <div id="bingo-page" class="page active">
+        <h1>Bingo Game</h1>
+        <div id="bingo-grid">
+            <div class="grid-cell">Find a flower</div>
+            <div class="grid-cell">Find a fish</div>
+            <div class="grid-cell">Find a person</div>
+            <div class="grid-cell">Find a key</div>
+            <div class="grid-cell">Find a bed</div>
+            <div class="grid-cell">Find a bottle</div>
+            <div class="grid-cell">Find a book</div>
+            <div class="grid-cell">Find a chair</div>
+            <div class="grid-cell">Find stairs</div>
+        </div>
     </script>
 </body>
 </html>
-
-
-      

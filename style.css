@@ -31,10 +31,14 @@ body {
     color: red;
 }
 
-.page.active {
-    display: block;
+#bingo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
 }
-
-#camera-page {
-    border: 3px solid red;
+.grid-cell {
+    padding: 20px;
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    cursor: pointer;
 }

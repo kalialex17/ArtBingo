@@ -197,39 +197,10 @@ document.addEventListener('DOMContentLoaded', initializeCamera);
 
 
 // New Logic: Bingo Grid Navigation
-document.addEventListener("DOMContentLoaded", () => {
-    const bingoPage = document.getElementById("bingo-page");
-    const cameraPage = document.getElementById("camera-page"); // Only one "camera-page" now
-    const gridCells = document.querySelectorAll(".grid-cell");
-
-    function showPage(pageToShow) {
-        console.log("Attempting to show page:", pageToShow.id);
-        document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
-        pageToShow.classList.add("active");
-        console.log("Current active page:", pageToShow.id);
-    }
-
-    // Add click event to grid cells
-    gridCells.forEach(cell => {
-        cell.addEventListener("click", () => {
-            console.log("Grid cell clicked. Redirecting to the camera page...");
-            showPage(cameraPage); // Redirect to the camera page
-        });
+document.querySelectorAll('.grid-cell').forEach(cell => {
+    cell.addEventListener('click', () => {
+        console.log('Navigating to the Camera Page...');
+        showPage(document.getElementById('camera-page'));
     });
-
-    // Debugging logs to ensure initialization is complete
-    console.log("Page navigation initialized. Bingo Page and Camera Page ready.");
 });
 
-console.log('Initializing camera...');
-initializeCamera();
-videoElement.addEventListener('playing', () => {
-    console.log('Camera feed is now playing.');
-});
-
-console.log('Video Element srcObject:', videoElement.srcObject);
-console.log('MediaStream tracks:', mediaStream.getTracks());
-videoElement.srcObject = mediaStream;
-videoElement.play()
-    .then(() => console.log('Video playback started'))
-    .catch(err => console.error('Error starting video playback:', err));
