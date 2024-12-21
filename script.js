@@ -226,3 +226,10 @@ initializeCamera();
 videoElement.addEventListener('playing', () => {
     console.log('Camera feed is now playing.');
 });
+
+console.log('Video Element srcObject:', videoElement.srcObject);
+console.log('MediaStream tracks:', mediaStream.getTracks());
+videoElement.srcObject = mediaStream;
+videoElement.play()
+    .then(() => console.log('Video playback started'))
+    .catch(err => console.error('Error starting video playback:', err));
