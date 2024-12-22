@@ -210,9 +210,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const homeButtons = document.querySelectorAll(".home-btn");
 
             // Show a specific page
-            function showPage(page) {
+            function showPage(pageToShow) {
+                console.log("Switching to page:", pageToShow.id);
                 document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
-                page.classList.add("active");
+                pageToShow.classList.add("active");
             }
 
             // Add event listeners to all home buttons
