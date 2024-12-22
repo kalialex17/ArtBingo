@@ -203,4 +203,23 @@ document.addEventListener("DOMContentLoaded", () => {
     captureButton.addEventListener('click', capturePhoto);
     detectButton.addEventListener('click', detectObjects);
     retryButton.addEventListener('click', retryCapture);
+  
+  document.addEventListener("DOMContentLoaded", () => {
+            const bingoPage = document.getElementById("bingo-page");
+            const cameraPage = document.getElementById("camera-page");
+            const homeButtons = document.querySelectorAll(".home-btn");
+
+            // Show a specific page
+            function showPage(page) {
+                document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+                page.classList.add("active");
+            }
+
+            // Add event listeners to all home buttons
+            homeButtons.forEach(button => {
+                button.addEventListener("click", () => {
+                    showPage(bingoPage); // Navigate back to the Bingo page
+                });
+            });
+        });
 });

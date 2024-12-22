@@ -1,68 +1,81 @@
 /* CSS for managing the Bingo Grid */
+.page {
+    display: none;
+}
+.page.active {
+    display: block;
+}
 #bingo-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    max-width: 300px;
-    margin: 20px auto;
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 10px;
+max-width: 300px;
+margin: 20px auto;
 }
 
 .grid-cell {
-    background-color: #f0f0f0;
-    border: 2px solid #ddd;
-    text-align: center;
-    padding: 20px;
-    font-size: 16px;
-    cursor: pointer;
+background-color: #f0f0f0;
+border: 2px solid #ddd;
+text-align: center;
+padding: 20px;
+font-size: 16px;
+cursor: pointer;
 }
 
 .grid-cell:hover {
-    background-color: #e0e0e0;
+background-color: #e0e0e0;
 }
 
 .grid-cell.completed {
-    background-color: #cfc;
-    border-color: #8f8;
-    color: #555;
-    pointer-events: none;
+background-color: #cfc;
+border-color: #8f8;
+color: #555;
+pointer-events: none;
 }
 
-#api-key-btn {
-    margin-top: 20px;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-#retry-btn {
-    display: none; /* Hidden by default */
-    margin-top: 10px;
-    padding: 10px 20px;
-    font-size: 14px;
-    cursor: pointer;
-}
-.popup {
+#api-key-popup {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 1000;
-    background-color: white;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+    background-color: #fff;
     padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
     border-radius: 8px;
 }
-
 .popup-content {
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
-
-#api-key-popup button {
-    margin-top: 10px;
-    padding: 10px 20px;
+.popup-content label {
+    font-size: 14px;
+    font-weight: bold;
+}
+.popup-content input {
+    padding: 8px;
+    font-size: 14px;
+}
+.popup-content button {
+    padding: 8px 12px;
     font-size: 14px;
     cursor: pointer;
+}
+.home-btn {
+    display: block;
+    margin: 10px auto 20px;
+    padding: 10px 15px;
+    font-size: 14px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.home-btn:hover {
+    background-color: #0056b3;
+}
+#retry-btn {
+    display: none; /* Initially hidden */
 }

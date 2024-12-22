@@ -5,72 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Art Bingo Game</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        /* CSS for managing pages */
-        .page {
-            display: none;
-        }
-        .page.active {
-            display: block;
-        }
-        #bingo-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            max-width: 300px;
-            margin: 20px auto;
-        }
-        .grid-cell {
-            background-color: #f0f0f0;
-            border: 2px solid #ddd;
-            text-align: center;
-            padding: 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .grid-cell.completed {
-            background-color: #cfc;
-            border-color: #8f8;
-            color: #555;
-            pointer-events: none;
-        }
-        #api-key-popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #fff;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            border-radius: 8px;
-        }
-        .popup-content {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .popup-content label {
-            font-size: 14px;
-            font-weight: bold;
-        }
-        .popup-content input {
-            padding: 8px;
-            font-size: 14px;
-        }
-        .popup-content button {
-            padding: 8px 12px;
-            font-size: 14px;
-            cursor: pointer;
-        }
-        #retry-btn {
-            display: none; /* Initially hidden */
-        }
-    </style>
+
 </head>
 <body>
     <!-- Bingo Grid Page -->
     <div id="bingo-page" class="page active">
+        <button class="home-btn" style="display: none;">Home</button> <!-- Hidden on the home page -->
         <h1>Art Bingo Game</h1>
         <div id="bingo-grid">
             <div id="cell-1" class="grid-cell" data-target="camera">Find a flower</div>
@@ -88,6 +28,7 @@
 
     <!-- Camera Page -->
     <div id="camera-page" class="page">
+        <button class="home-btn" id="home-btn">Home</button>
         <h1>Camera Capture & Object Detection</h1>
         <div id="camera-section">
             <video id="camera-preview" autoplay playsinline></video>
