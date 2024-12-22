@@ -208,6 +208,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const bingoPage = document.getElementById("bingo-page");
             const cameraPage = document.getElementById("camera-page");
             const homeButtons = document.querySelectorAll(".home-btn");
+            console.log("Bingo Page Element:", bingoPage);
+
 
             // Show a specific page
             function showPage(pageToShow) {
