@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const apiKeyPopup = document.getElementById('api-key-popup');
     const apiKeyInput = document.getElementById('api-key-input');
     const saveApiKeyButton = document.getElementById('save-api-key-btn');
+    const closePopupButton = document.getElementById('close-popup-btn'); // Added close button reference
 
     const HUGGING_FACE_API_URL = "https://api-inference.huggingface.co/models/facebook/detr-resnet-50";
     let HUGGING_FACE_API_TOKEN = null;
@@ -106,28 +107,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // --------------- Process Top Detection Result ---------------
-function processTopDetectionResult(results) {
-    if (!results || results.length === 0) {
-        detectionResultsElement.textContent = 'No objects detected.';
-        retryButton.style.display = 'block'; // Show Retry Button
-        return;
+    function processTopDetectionResult(results) {
+        if (!results || results.length === 0) {
+            detectionResultsElement.textContent = 'No objects detected.';
+            retryButton.style.display = 'block'; // Show Retry Button
+            return;
+        }
+
+        // Get the top result
+        const topResult = results.sort((a, b) => b.score - a.score)[0];
+        const { label, score } = topResult;
+
+        detectionResultsElement.textContent = `Detected: ${label} (Confidence: ${(score * 100).toFixed(2)}%)`;
+
+        // Check if the result matches the correct answer for the active cell
+        if (activeCellId && correctAnswers[activeCellId] === label.toLowerCase()) {
+            markCellAsCompleted(activeCellId);
+            retryButton.style.display = 'none'; // Hide Retry Button if successful
+        } else {
+            errorMessageElement.textContent = `The detected object "${label}" does not match the required object.`;
+            retryButton.style.display = 'block'; // Show Retry Button
+        }
     }
-
-    // Get the top result
-    const topResult = results.sort((a, b) => b.score - a.score)[0];
-    const { label, score } = topResult;
-
-    detectionResultsElement.textContent = `Detected: ${label} (Confidence: ${(score * 100).toFixed(2)}%)`;
-
-    // Check if the result matches the correct answer for the active cell
-    if (activeCellId && correctAnswers[activeCellId] === label.toLowerCase()) {
-        markCellAsCompleted(activeCellId);
-        retryButton.style.display = 'none'; // Hide Retry Button if successful
-    } else {
-        errorMessageElement.textContent = `The detected object "${label}" does not match the required object.`;
-        retryButton.style.display = 'block'; // Show Retry Button
-    }
-}
 
     // --------------- Mark Cell as Completed ---------------
     function markCellAsCompleted(cellId) {
@@ -139,13 +140,13 @@ function processTopDetectionResult(results) {
     }
 
     // ---------------- Retry Capture -----------------
-   function retryCapture() {
-    initializeCamera();
-    capturedImageBase64 = null;
-    detectionResultsElement.textContent = '';
-    errorMessageElement.textContent = '';
-    retryButton.style.display = 'none'; // Hide Retry Button when retrying
-}
+    function retryCapture() {
+        initializeCamera();
+        capturedImageBase64 = null;
+        detectionResultsElement.textContent = '';
+        errorMessageElement.textContent = '';
+        retryButton.style.display = 'none'; // Hide Retry Button when retrying
+    }
 
     // ---------------- API Key Handlers -----------------
     function showApiKeyPopup() {
@@ -163,6 +164,10 @@ function processTopDetectionResult(results) {
         } else {
             alert('API key cannot be empty.');
         }
+    }
+
+    function closeApiKeyPopup() {
+        apiKeyPopup.style.display = 'none';
     }
 
     // ---------------- Grid Interactions -----------------
@@ -194,6 +199,7 @@ function processTopDetectionResult(results) {
 
     apiKeyButton.addEventListener('click', showApiKeyPopup);
     saveApiKeyButton.addEventListener('click', saveApiKey);
+    closePopupButton.addEventListener('click', closeApiKeyPopup); // Close popup event
     captureButton.addEventListener('click', capturePhoto);
     detectButton.addEventListener('click', detectObjects);
     retryButton.addEventListener('click', retryCapture);

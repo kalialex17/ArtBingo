@@ -34,6 +34,38 @@
             color: #555;
             pointer-events: none;
         }
+        #api-key-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            border-radius: 8px;
+        }
+        .popup-content {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .popup-content label {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .popup-content input {
+            padding: 8px;
+            font-size: 14px;
+        }
+        .popup-content button {
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        #retry-btn {
+            display: none; /* Initially hidden */
+        }
     </style>
 </head>
 <body>
@@ -63,20 +95,21 @@
         </div>
         <!-- Result Section -->
         <div id="result-section" style="display: none;">
-    <canvas id="captured-image"></canvas>
-    <p id="detection-results"></p>
-    <p id="error-message"></p>
-    <button id="detect-btn">Detect Objects</button>
-    <button id="retry-btn">Retry</button> <!-- Single Retry Button -->
-</div>
+            <canvas id="captured-image"></canvas>
+            <p id="detection-results"></p>
+            <p id="error-message"></p>
+            <button id="detect-btn">Detect Objects</button>
+            <button id="retry-btn">Retry</button>
+        </div>
+    </div>
 
-
-    <!-- Popup Modal -->
-    <div id="api-key-popup" class="popup" style="display: none;">
+    <!-- API Key Popup -->
+    <div id="api-key-popup" style="display: none;">
         <div class="popup-content">
             <label for="api-key-input">Enter your API Key:</label>
-            <input type="text" id="api-key-input" placeholder="API Key" />
+            <input type="text" id="api-key-input" placeholder="API Key">
             <button id="save-api-key-btn">Save</button>
+            <button id="close-popup-btn">Close</button>
         </div>
     </div>
 
