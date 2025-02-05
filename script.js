@@ -70,6 +70,33 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    // --------------- Initialize Game -----------------
+    points_label = document.getElementById("points");
+    chrono_label = document.getElementById("chrono");
+    time_taken_label = document.getElementById("time-taken");
+    let points = 0;
+    let chrono = 0;
+
+    function startGame() {
+        points = 0;
+        chrono = 0;
+        points_label.innerText = points;
+        chrono_label.innerText = chrono;
+        showPage(bingoPage);
+    }
+
+    function startTime() {
+        if (chrono === 0) {
+            setInterval(() => {
+                chrono ++;
+                let minutes = Math.floor(chrono / 60);
+                let seconds = chrono % 60;
+                chrono_label.innerText = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+            }, 1000);
+        }
+    }
+
+
     // --------------- Initialize Camera -----------------
     async function initializeCamera() {
         try {
@@ -174,11 +201,16 @@ document.addEventListener("DOMContentLoaded", () => {
             cell.classList.add('completed');
             cell.removeEventListener('click', handleCellClick);
             isCellCompleted[cellId] = true;
+            points += 10;
         }
 
         // Check if all cells are completed
         const allCellsCompleted = Object.values(isCellCompleted).every(value => value);
         if (allCellsCompleted) {
+
+            let minutes = Math.floor(chrono / 60);
+            let seconds = chrono % 60;
+            time_taken_label.innerText = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
             setTimeout(() => {
                 showPage(winPage);
             }, 2000);
@@ -222,6 +254,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function handleCellClick(event) {
         const cell = event.target;
         activeCellId = cell.id; // Set the active cell ID
+        startTime(); // Start the timer
         showPage(cameraPage);
         initializeCamera();
     }
@@ -233,6 +266,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // ---------------- Startup -----------------
     const storedApiKey = localStorage.getItem('huggingFaceApiKey');
     if (storedApiKey) HUGGING_FACE_API_TOKEN = storedApiKey;
+
+
+    startGame(); // Start the game
 
     apiKeyButton.addEventListener('click', showApiKeyPopup);
     saveApiKeyButton.addEventListener('click', saveApiKey);

@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -24,6 +24,16 @@
             <div id="cell-9" class="grid-cell" data-target="camera">Find stairs</div>
         </div>
         <button id="api-key-btn">Set API Key</button>
+
+        <div id="point-board">
+            <h2>Points</h2>
+            <p id="points">0</p>
+        </div>
+
+        <div id="chrono-board">
+            <h2>Time</h2>
+            <p id="chrono">0:00</p>
+        </div>
     </div>
 
     <!-- Camera Page -->
@@ -47,7 +57,7 @@
     <!-- Win Page -->
     <div id="win-page" class="page">
         <h1>You win !</h1>
-        </div>
+        <p id="win-message">You found all the objects in <span id="time-taken">0:00</span> minutes</p>
     </div>
 
     <!-- API Key Popup -->
