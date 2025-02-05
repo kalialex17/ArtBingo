@@ -34,7 +34,41 @@ document.addEventListener("DOMContentLoaded", () => {
         'cell-9': 'stairs'
     };
 
+    const isCellCompleted = {
+        'cell-1': false,
+        'cell-2': false,
+        'cell-3': false,
+        'cell-4': false,
+        'cell-5': false,
+        'cell-6': false,
+        'cell-7': false,
+        'cell-8': false,
+        'cell-9': false
+    };
+
     let activeCellId = null; // Track which cell is currently active
+
+
+    // ---------------- Page Management -----------------
+    const bingoPage = document.getElementById("bingo-page");
+    const cameraPage = document.getElementById("camera-page");
+    const winPage = document.getElementById("win-page");
+
+    function showPage(pageToShow) {
+        document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+        pageToShow.classList.add("active");
+    }
+
+
+    // ---------------- Home button -----------------
+    const homeButtons = document.querySelectorAll(".home-btn");
+
+    // Add event listeners to all home buttons
+    homeButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            showPage(bingoPage); // Navigate back to the Bingo page
+        });
+    });
 
     // --------------- Initialize Camera -----------------
     async function initializeCamera() {
@@ -109,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // --------------- Process Top Detection Result ---------------
     function processTopDetectionResult(results) {
         if (!results || results.length === 0) {
-            detectionResultsElement.textContent = 'No objects detected.';
+            detectionResultsElement.textContent = 'No objects detected. Please retry.';
             retryButton.style.display = 'block'; // Show Retry Button
             return;
         }
@@ -124,8 +158,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (activeCellId && correctAnswers[activeCellId] === label.toLowerCase()) {
             markCellAsCompleted(activeCellId);
             retryButton.style.display = 'none'; // Hide Retry Button if successful
+            setTimeout(() => {
+                showPage(bingoPage);
+            }, 1000);
         } else {
-            errorMessageElement.textContent = `The detected object "${label}" does not match the required object.`;
+            errorMessageElement.textContent = `The detected object "${label}" does not match the required object (${correctAnswers[activeCellId]}).`;
             retryButton.style.display = 'block'; // Show Retry Button
         }
     }
@@ -136,6 +173,15 @@ document.addEventListener("DOMContentLoaded", () => {
         if (cell) {
             cell.classList.add('completed');
             cell.removeEventListener('click', handleCellClick);
+            isCellCompleted[cellId] = true;
+        }
+
+        // Check if all cells are completed
+        const allCellsCompleted = Object.values(isCellCompleted).every(value => value);
+        if (allCellsCompleted) {
+            setTimeout(() => {
+                showPage(winPage);
+            }, 2000);
         }
     }
 
@@ -188,41 +234,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const storedApiKey = localStorage.getItem('huggingFaceApiKey');
     if (storedApiKey) HUGGING_FACE_API_TOKEN = storedApiKey;
 
-    // ---------------- Page Management -----------------
-    const bingoPage = document.getElementById("bingo-page");
-    const cameraPage = document.getElementById("camera-page");
-
-    function showPage(pageToShow) {
-        document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
-        pageToShow.classList.add("active");
-    }
-
     apiKeyButton.addEventListener('click', showApiKeyPopup);
     saveApiKeyButton.addEventListener('click', saveApiKey);
     closePopupButton.addEventListener('click', closeApiKeyPopup); // Close popup event
     captureButton.addEventListener('click', capturePhoto);
     detectButton.addEventListener('click', detectObjects);
     retryButton.addEventListener('click', retryCapture);
-  
-  document.addEventListener("DOMContentLoaded", () => {
-            const bingoPage = document.getElementById("bingo-page");
-            const cameraPage = document.getElementById("camera-page");
-            const homeButtons = document.querySelectorAll(".home-btn");
-            console.log("Bingo Page Element:", bingoPage);
-
-
-            // Show a specific page
-            function showPage(pageToShow) {
-                console.log("Switching to page:", pageToShow.id);
-                document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
-                pageToShow.classList.add("active");
-            }
-
-            // Add event listeners to all home buttons
-            homeButtons.forEach(button => {
-                button.addEventListener("click", () => {
-                    showPage(bingoPage); // Navigate back to the Bingo page
-                });
-            });
-        });
 });
