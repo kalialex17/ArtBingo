@@ -94,3 +94,39 @@ h1, h2 {
     height: auto;
     object-fit: cover;
 }
+
+/* Smooth transition for interactive elements */
+button, .home-btn, .grid-cell {
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Hover effects */
+button:hover, .home-btn:hover, .grid-cell:hover {
+    background-color: var(--color-accent);
+    transform: scale(1.05);
+}
+
+/* Page fade-in effect */
+body {
+    opacity: 0;
+    animation: fadeIn 0.8s ease-in forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.grid-cell:active {
+    transform: scale(0.95);
+}
+
+html {
+    scroll-behavior: smooth;
+}
