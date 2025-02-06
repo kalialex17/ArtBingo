@@ -117,21 +117,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ---------------- Capture Photo -----------------
     function capturePhoto() {
-        canvasElement.width = videoElement.videoWidth;
-        canvasElement.height = videoElement.videoHeight;
+        const maxWidth = 800; // Imposta una larghezza massima accettabile
+        const maxHeight = 600; // Imposta un'altezza massima accettabile
+    
+        const originalWidth = videoElement.videoWidth;
+        const originalHeight = videoElement.videoHeight;
+    
+        let newWidth = originalWidth;
+        let newHeight = originalHeight;
+    
+        // Ridimensionamento mantenendo le proporzioni
+        if (originalWidth > maxWidth || originalHeight > maxHeight) {
+            const aspectRatio = originalWidth / originalHeight;
+            if (originalWidth > originalHeight) {
+                newWidth = maxWidth;
+                newHeight = Math.round(maxWidth / aspectRatio);
+            } else {
+                newHeight = maxHeight;
+                newWidth = Math.round(maxHeight * aspectRatio);
+            }
+        }
+    
+        canvasElement.width = newWidth;
+        canvasElement.height = newHeight;
         const context = canvasElement.getContext('2d');
-        context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
-
+        context.drawImage(videoElement, 0, 0, newWidth, newHeight);
+    
         originalImage = new Image();
         originalImage.src = canvasElement.toDataURL('image/jpeg');
         capturedImageBase64 = canvasElement.toDataURL('image/jpeg').split(',')[1];
-
+    
         cameraSection.style.display = 'none';
         resultSection.style.display = 'block';
+    
         if (mediaStream) {
             mediaStream.getTracks().forEach(track => track.stop());
         }
     }
+    
 
     // ---------------- Detect Objects -----------------
     async function detectObjects() {
