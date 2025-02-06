@@ -8,14 +8,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-
 </head>
 <body>
     <!-- Bingo Grid Page -->
-    <div id="bingo-page" class="page active">
-        <button class="home-btn" style="display: none;">Home</button> <!-- Hidden on the home page -->
-        <h1>Art Bingo Game</h1>
-        <div id="bingo-grid">
+    <main id="bingo-page" class="page active">
+        <button class="home-btn hidden" aria-label="Return to Home Page">Home</button>
+        <header>
+            <h1>Art Bingo Game</h1>
+        </header>
+        <section id="bingo-grid">
             <div id="cell-1" class="grid-cell" data-target="camera">Find a flower</div>
             <div id="cell-2" class="grid-cell" data-target="camera">Find a candle</div>
             <div id="cell-3" class="grid-cell" data-target="camera">Find a person</div>
@@ -25,51 +26,57 @@
             <div id="cell-7" class="grid-cell" data-target="camera">Find a book</div>
             <div id="cell-8" class="grid-cell" data-target="camera">Find a chair</div>
             <div id="cell-9" class="grid-cell" data-target="camera">Find stairs</div>
-        </div>
-        <button id="api-key-btn">Set API Key</button>
+        </section>
+        <button id="api-key-btn" aria-label="Set API Key">Set API Key</button>
 
-        <div id="point-board">
+        <section id="point-board">
             <h2>Points</h2>
             <p id="points">0</p>
-        </div>
+        </section>
 
-        <div id="chrono-board">
+        <section id="chrono-board">
             <h2>Time</h2>
             <p id="chrono">0:00</p>
-        </div>
-    </div>
+        </section>
+    </main>
 
     <!-- Camera Page -->
     <div id="camera-page" class="page">
-        <button class="home-btn" id="home-btn">Home</button>
-        <h1>Camera Capture & Object Detection</h1>
-        <div id="camera-section">
-            <video id="camera-preview" autoplay playsinline></video>
-            <button id="capture-btn">Capture Photo</button>
-        </div>
-        <!-- Result Section -->
-        <div id="result-section" style="display: none;">
+        <button class="home-btn" id="home-btn" aria-label="Return to Home Page">Home</button>
+        <header>
+            <h1>Camera Capture & Object Detection</h1>
+        </header>
+        <section id="camera-section">
+            <video id="camera-preview" autoplay playsinline>
+                Your browser does not support the video tag.
+            </video>
+            <button id="capture-btn" aria-label="Capture Photo">Capture Photo</button>
+        </section>
+        <section id="result-section" class="hidden">
             <canvas id="captured-image"></canvas>
             <p id="detection-results"></p>
             <p id="error-message"></p>
-            <button id="detect-btn">Detect Objects</button>
-            <button id="retry-btn">Retry</button>
-        </div>
+            <button id="detect-btn" aria-label="Detect Objects">Detect Objects</button>
+            <button id="retry-btn" aria-label="Retry">Retry</button>
+        </section>
     </div>
 
     <!-- Win Page -->
     <div id="win-page" class="page">
-        <h1>You win !</h1>
+        <header>
+            <h1>You win!</h1>
+        </header>
         <p id="win-message">You found all the objects in <span id="time-taken">0:00</span> minutes</p>
+        <button id="restart-btn" aria-label="Play Again">Play Again</button>
     </div>
 
     <!-- API Key Popup -->
-    <div id="api-key-popup" style="display: none;">
+    <div id="api-key-popup" class="hidden">
         <div class="popup-content">
             <label for="api-key-input">Enter your API Key:</label>
             <input type="text" id="api-key-input" placeholder="API Key">
-            <button id="save-api-key-btn">Save</button>
-            <button id="close-popup-btn">Close</button>
+            <button id="save-api-key-btn" aria-label="Save API Key">Save</button>
+            <button id="close-popup-btn" aria-label="Close Popup">Close</button>
         </div>
     </div>
 

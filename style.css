@@ -12,29 +12,46 @@
     --font-secondary: 'Lato', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* Update your existing CSS classes */
+/* Page Styles */
 .page {
     display: none;
     padding: 20px;
     background-color: var(--color-background);
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
 }
 
 .page.active {
     display: block;
+    opacity: 1;
 }
 
+/* Typography */
 h1, h2 {
     font-family: var(--font-primary);
     color: var(--color-primary);
     margin-bottom: 1rem;
 }
 
+/* Bingo Grid */
 #bingo-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
     max-width: 300px;
     margin: 20px auto;
+}
+
+@media (max-width: 600px) {
+    #bingo-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 400px) {
+    #bingo-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .grid-cell {
@@ -59,6 +76,22 @@ h1, h2 {
     pointer-events: none;
 }
 
+/* Buttons */
+button, .home-btn, .grid-cell {
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+button:hover, .home-btn:hover, .grid-cell:hover {
+    background-color: var(--color-accent);
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+button:focus, .home-btn:focus, .grid-cell:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
 .home-btn {
     display: block;
     margin: 10px auto 20px;
@@ -69,13 +102,18 @@ h1, h2 {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: all 0.3s ease;
 }
 
-.home-btn:hover {
-    background-color: var(--color-accent);
+/* Camera Preview */
+#camera-preview {
+    width: 100%;
+    max-height: 60vh;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Popup */
 #api-key-popup {
     position: fixed;
     top: 50%;
@@ -89,37 +127,25 @@ h1, h2 {
     font-family: var(--font-secondary);
 }
 
-#camera-preview {
-    max-width: 100%;
-    height: auto;
-    object-fit: cover;
+#api-key-popup-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
 }
 
-/* Smooth transition for interactive elements */
-button, .home-btn, .grid-cell {
-    transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-/* Hover effects */
-button:hover, .home-btn:hover, .grid-cell:hover {
-    background-color: var(--color-accent);
-    transform: scale(1.05);
-}
-
-/* Page fade-in effect */
+/* Animations */
 body {
     opacity: 0;
     animation: fadeIn 0.8s ease-in forwards;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
     to {
         opacity: 1;
-        transform: translateY(0);
     }
 }
 
