@@ -24,9 +24,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Mapping for correct answers per cell
     const correctAnswers = {
         'cell-1': 'flower',
-        'cell-2': 'fish',
+        'cell-2': 'candle',
         'cell-3': 'person',
-        'cell-4': 'key',
+        'cell-4': 'cross',
         'cell-5': 'bed',
         'cell-6': 'bottle',
         'cell-7': 'book',
