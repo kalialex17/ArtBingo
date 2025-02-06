@@ -88,3 +88,9 @@ h1, h2 {
     border-radius: 8px;
     font-family: var(--font-secondary);
 }
+
+#camera-preview {
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
+}
