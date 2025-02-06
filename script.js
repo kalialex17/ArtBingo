@@ -76,6 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
     time_taken_label = document.getElementById("time-taken");
     let points = 0;
     let chrono = 0;
+    let timerInterval = null;
 
     function startGame() {
         points = 0;
@@ -86,9 +87,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function startTime() {
-        if (chrono === 0) {
-            setInterval(() => {
-                chrono ++;
+        if (!timerInterval) {
+            timerInterval = setInterval(() => {
+                chrono++;
                 let minutes = Math.floor(chrono / 60);
                 let seconds = chrono % 60;
                 chrono_label.innerText = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
@@ -142,9 +143,11 @@ document.addEventListener("DOMContentLoaded", () => {
             errorMessageElement.textContent = 'No image captured. Please capture a photo first.';
             return;
         }
+    
         try {
             detectionResultsElement.textContent = 'Detecting objects... Please wait.';
             errorMessageElement.textContent = '';
+    
             const response = await fetch(HUGGING_FACE_API_URL, {
                 method: 'POST',
                 headers: {
@@ -152,21 +155,25 @@ document.addEventListener("DOMContentLoaded", () => {
                     'Content-Type': 'application/json',
                     'x-wait-for-model': 'true',
                 },
-                body: JSON.stringify({ inputs: capturedImageBase64, parameters: { threshold: 0.7 } }),
+                body: JSON.stringify({
+                    inputs: { image: capturedImageBase64 },
+                    parameters: { threshold: 0.7 }
+                }),
             });
+    
             if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
+    
             const results = await response.json();
             processTopDetectionResult(results);
         } catch (error) {
-            console.error('Full error object:', error);
+            console.error('Error during object detection:', error);
             errorMessageElement.innerHTML = `<span class="error">Object Detection Error:</span> <br>${error.message}`;
             detectionResultsElement.textContent = '';
         }
     }
-
+    
     // --------------- Process Top Detection Result ---------------
     function processTopDetectionResult(results) {
         if (!results || results.length === 0) {
@@ -203,7 +210,11 @@ document.addEventListener("DOMContentLoaded", () => {
             isCellCompleted[cellId] = true;
             points += 10;
         }
-
+       
+    function updatePoints() {
+            points_label.innerText = points;
+        }
+        
         // Check if all cells are completed
         const allCellsCompleted = Object.values(isCellCompleted).every(value => value);
         if (allCellsCompleted) {
