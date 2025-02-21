@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const saveApiKeyButton = document.getElementById('save-api-key-btn');
     const closePopupButton = document.getElementById('close-popup-btn'); // Added close button reference
 
-    const HUGGING_FACE_API_URL = "https://api-inference.huggingface.co/models/facebook/detr-resnet-50";
+    const HUGGING_FACE_API_URL = "https://api-inference.huggingface.co/spaces/wh1tel1ne/thesis.project";
     let HUGGING_FACE_API_TOKEN = null;
     let mediaStream = null;
     let capturedImageBase64 = null;
@@ -171,7 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
             detectionResultsElement.textContent = 'Detecting objects... Please wait.';
             errorMessageElement.textContent = '';
     
-            const response = await fetch(HUGGING_FACE_API_URL, {
+             const response = await fetch(HUGGING_FACE_API_URL, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${HUGGING_FACE_API_TOKEN}`,
@@ -179,17 +179,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     'x-wait-for-model': 'true',
                 },
                 body: JSON.stringify({
-                    inputs: { image: capturedImageBase64 },
-                    parameters: { threshold: 0.7 }
+                     inputs: capturedImageBase64
                 }),
-            });
-    
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+             });
     
             const results = await response.json();
-            processTopDetectionResult(results);
+            const predictions = Array.isArray(results) ? results[0] : results;
+            processTopDetectionResult(predictions);
+    
         } catch (error) {
             console.error('Error during object detection:', error);
             errorMessageElement.innerHTML = `<span class="error">Object Detection Error:</span> <br>${error.message}`;
