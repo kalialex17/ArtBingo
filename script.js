@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const saveApiKeyButton = document.getElementById('save-api-key-btn');
     const closePopupButton = document.getElementById('close-popup-btn'); // Added close button reference
 
-    const HUGGING_FACE_API_URL = "https://api-inference.huggingface.co/spaces/wh1tel1ne/thesis.project";
+    const HUGGING_FACE_API_URL = "https://hf.space/gradio/wh1tel1ne/thesis.project/queue/push";
     let HUGGING_FACE_API_TOKEN = null;
     let mediaStream = null;
     let capturedImageBase64 = null;
@@ -156,6 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     
 
+   
     // ---------------- Detect Objects -----------------
     async function detectObjects() {
         if (!HUGGING_FACE_API_TOKEN) {
@@ -166,37 +167,39 @@ document.addEventListener("DOMContentLoaded", () => {
             errorMessageElement.textContent = 'No image captured. Please capture a photo first.';
             return;
         }
-    
+
         try {
             detectionResultsElement.textContent = 'Detecting objects... Please wait.';
             errorMessageElement.textContent = '';
-    
-             const response = await fetch(HUGGING_FACE_API_URL, {
+
+            const response = await fetch(HUGGING_FACE_API_URL, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${HUGGING_FACE_API_TOKEN}`,
                     'Content-Type': 'application/json',
-                    'x-wait-for-model': 'true',
                 },
                 body: JSON.stringify({
-                     inputs: capturedImageBase64
+                    data: [capturedImageBase64]
                 }),
-             });
+            });
 
-            if (!response.ok){
-                throw new Error(response.status);
+            if (!response.ok) {
+                console.log("Response : ",response);
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-    
+
             const results = await response.json();
-            const predictions = Array.isArray(results) ? results[0] : results;
+            // Gradio Spaces return outputs in a "data" array; the first element is the predictions
+            const predictions = results.data[0];
             processTopDetectionResult(predictions);
-    
+
         } catch (error) {
             console.error('Error during object detection:', error);
             errorMessageElement.innerHTML = `<span class="error">Object Detection Error:</span> <br>${error.message}`;
             detectionResultsElement.textContent = '';
         }
     }
+
     
     // --------------- Process Top Detection Result ---------------
     function processTopDetectionResult(results) {
