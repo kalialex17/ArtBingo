@@ -182,6 +182,10 @@ document.addEventListener("DOMContentLoaded", () => {
                      inputs: capturedImageBase64
                 }),
              });
+
+            if (!response.ok){
+                throw new Error(response.status);
+            }
     
             const results = await response.json();
             const predictions = Array.isArray(results) ? results[0] : results;
