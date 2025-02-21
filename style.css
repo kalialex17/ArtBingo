@@ -42,18 +42,6 @@ h1, h2 {
     margin: 20px auto;
 }
 
-@media (max-width: 600px) {
-    #bingo-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 400px) {
-    #bingo-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
 .grid-cell {
     background-color: var(--color-background);
     border: 2px solid var(--color-border);
