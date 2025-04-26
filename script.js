@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const saveApiKeyButton = document.getElementById('save-api-key-btn');
     const closePopupButton = document.getElementById('close-popup-btn'); // Added close button reference
 
-    const HUGGING_FACE_API_URL = "https://hf.space/gradio/wh1tel1ne/thesis.project/queue/push";
+    const HUGGING_FACE_API_URL = "https://api-inference.huggingface.co/models/google/vit-base-patch16-224";
     let HUGGING_FACE_API_TOKEN = null;
     let mediaStream = null;
     let capturedImageBase64 = null;
@@ -33,6 +33,17 @@ document.addEventListener("DOMContentLoaded", () => {
         'cell-8': 'chair',
         'cell-9': 'stairs'
     };
+    const CLASS_MAPPING = {
+        'flower': ['daisy', 'sunflower', 'vase', 'flower', 'bouquet'],
+        'candle': ['candle', 'lantern', 'candlestick'],
+        'person': ['person', 'man', 'woman', 'child', 'face'],
+        'cross': ['cross', 'crucifix', 'christian cross'],
+        'bed': ['bed', 'four-poster bed', 'crib'],
+        'bottle': ['bottle', 'wine bottle', 'perfume bottle', 'vase'],
+        'book': ['book', 'notebook', 'booklet', 'bible'],
+        'chair': ['chair', 'folding chair', 'rocking chair', 'bench'],
+        'stairs': ['stairway', 'staircase', 'steps']
+    };    
 
     const isCellCompleted = {
         'cell-1': false,
