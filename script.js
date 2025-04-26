@@ -180,11 +180,22 @@ document.addEventListener("DOMContentLoaded", () => {
             errorMessageElement.textContent = 'No image captured. Please capture a photo first.';
             return;
         }
-
+    
         try {
             detectionResultsElement.textContent = 'Detecting objects... Please wait.';
             errorMessageElement.textContent = '';
-
+    
+            // Convert base64 to blob
+            const byteString = atob(capturedImageBase64);
+            const mimeString = 'image/jpeg';
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+            const blob = new Blob([ab], { type: mimeString });
+    
+            // Correct API request format
             const response = await fetch(HUGGING_FACE_API_URL, {
                 method: 'POST',
                 headers: {
@@ -192,23 +203,24 @@ document.addEventListener("DOMContentLoaded", () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    data: [capturedImageBase64]
+                    inputs: capturedImageBase64 // Send raw base64 without 'data:image/jpeg;base64,' prefix
                 }),
             });
-
+    
             if (!response.ok) {
-                console.log("Response : ",response);
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorData = await response.json();
+                console.error("Detailed API error:", errorData);
+                throw new Error(`API Error: ${errorData.error || response.statusText}`);
             }
-
+    
             const results = await response.json();
-            // Gradio Spaces return outputs in a "data" array; the first element is the predictions
-            const predictions = results.data[0];
-            processTopDetectionResult(predictions);
-
+            processTopDetectionResult(results);
+    
         } catch (error) {
-            console.error('Error during object detection:', error);
-            errorMessageElement.innerHTML = `<span class="error">Object Detection Error:</span> <br>${error.message}`;
+            console.error('Full error:', error);
+            errorMessageElement.innerHTML = `<span class="error">Detection Failed:</span><br>
+                                           ${error.message}<br>
+                                           (Check console for details)`;
             detectionResultsElement.textContent = '';
         }
     }
