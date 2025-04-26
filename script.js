@@ -33,6 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
         'cell-8': 'chair',
         'cell-9': 'stairs'
     };
+
     const CLASS_MAPPING = {
         'flower': ['daisy', 'sunflower', 'vase', 'flower', 'bouquet'],
         'candle': ['candle', 'lantern', 'candlestick'],
@@ -43,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
         'book': ['book', 'notebook', 'booklet', 'bible'],
         'chair': ['chair', 'folding chair', 'rocking chair', 'bench'],
         'stairs': ['stairway', 'staircase', 'steps']
-    };    
+    };
 
     const isCellCompleted = {
         'cell-1': false,
@@ -227,7 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
         detectionResultsElement.textContent = `Detected: ${label} (Confidence: ${(score * 100).toFixed(2)}%)`;
 
         // Check if the result matches the correct answer for the active cell
-        if (activeCellId && correctAnswers[activeCellId] === label.toLowerCase()) {
+        if (activeCellId && correctAnswers && CLASS_MAPPING[activeCellId] === label.toLowerCase()) {
             markCellAsCompleted(activeCellId);
             retryButton.style.display = 'none'; // Hide Retry Button if successful
             setTimeout(() => {
