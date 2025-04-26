@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const closePopupButton = document.getElementById('close-popup-btn'); // Added close button reference
 
 
-    const HUGGING_FACE_API_URL = "https://api-inference.huggingface.co/models/google/vit-base-patch16-224";
+    const HUGGING_FACE_API_URL = "https://corsproxy.io/?https://api-inference.huggingface.co/models/google/vit-base-patch16-224";
     let HUGGING_FACE_API_TOKEN = null;
     let mediaStream = null;
     let capturedImageBase64 = null;
