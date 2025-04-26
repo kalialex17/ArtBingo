@@ -16,10 +16,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const closePopupButton = document.getElementById('close-popup-btn'); // Added close button reference
 
 
-    const HUGGING_FACE_API_URL = "https://api.allorigins.win/raw?url=https://api-inference.huggingface.co/models/google/vit-base-patch16-224";
+    const HUGGING_FACE_API_URL = "https://proxy.cors.sh/https://api-inference.huggingface.co/models/google/vit-base-patch16-224";
     let HUGGING_FACE_API_TOKEN = null;
     let mediaStream = null;
-    let capturedImageBase64 = null;
+    let capturedImageBlob = null; // Replace capturedImageBase64 with this
     let originalImage = null;
 
     // Mapping for correct answers per cell
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let activeCellId = null; // Track which cell is currently active
 
-    let capturedImageBlob = null; // Replace capturedImageBase64 with this
+    
 
     // ---------------- Page Management -----------------
     const bingoPage = document.getElementById("bingo-page");
@@ -172,60 +172,53 @@ document.addEventListener("DOMContentLoaded", () => {
 
    
     // ---------------- Detect Objects -----------------
-    async function detectObjects() {
-        if (!HUGGING_FACE_API_TOKEN) {
-          errorMessageElement.textContent = 'API key is missing. Please set the API key first.';
-          return;
-        }
-        if (!capturedImageBlob) {
-          errorMessageElement.textContent = 'No image captured. Please capture a photo first.';
-          return;
-        }
-        try {
-            // Convert Blob to base64
-            const reader = new FileReader();
-            reader.readAsDataURL(capturedImageBlob);
-            
-            const base64data = await new Promise((resolve) => {
-              reader.onloadend = () => resolve(reader.result.split(',')[1]);
-            });
+async function detectObjects() {
+    if (!HUGGING_FACE_API_TOKEN) {
+        errorMessageElement.textContent = 'API key is missing. Please set the API key first.';
+        return;
+    }
+    if (!capturedImageBlob) {
+        errorMessageElement.textContent = 'No image captured. Please capture a photo first.';
+        return;
+    }
+
+    try {
+        detectionResultsElement.textContent = 'Detecting objects... Please wait.';
+        errorMessageElement.textContent = '';
+
+        // Convert Blob to base64
+        const reader = new FileReader();
+        reader.readAsDataURL(capturedImageBlob);
         
-            const response = await fetch(HUGGING_FACE_API_URL, {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${HUGGING_FACE_API_TOKEN}`,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ inputs: base64data })
-            });
-        
-        try {
-          detectionResultsElement.textContent = 'Detecting objects... Please wait.';
-          errorMessageElement.textContent = '';
-      
-          const response = await fetch(HUGGING_FACE_API_URL, {
+        const base64data = await new Promise((resolve) => {
+            reader.onloadend = () => resolve(reader.result.split(',')[1]);
+        });
+
+        const response = await fetch(HUGGING_FACE_API_URL, {
             method: 'POST',
             headers: {
-              'Authorization': `Bearer ${HUGGING_FACE_API_TOKEN}`,
-              'Content-Type': 'image/jpeg'
+                'Authorization': `Bearer ${HUGGING_FACE_API_TOKEN}`,
+                'Content-Type': 'application/json',
+                'x-cors-api-key': 'temp_0a4a4a4a4a4a4a4a4a4a4a4a4a4a4a4a', // Free temporary key
+                'Origin': 'https://kalialex17.github.io'
             },
-            body: capturedImageBlob // Send raw image bytes
-          });
-      
-          if (!response.ok) {
+            body: JSON.stringify({ inputs: base64data })
+        });
+
+        if (!response.ok) {
             const errorText = await response.text();
             throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorText}`);
-          }
-      
-          const results = await response.json();
-          processTopDetectionResult(results);
-      
-        } catch (error) {
-          console.error('Detection error:', error);
-          errorMessageElement.textContent = `Detection failed: ${error.message}`;
-          detectionResultsElement.textContent = '';
         }
-      }
+
+        const results = await response.json();
+        processTopDetectionResult(results);
+
+    } catch (error) {
+        console.error('Detection error:', error);
+        errorMessageElement.textContent = `Detection failed: ${error.message}`;
+        detectionResultsElement.textContent = '';
+    }
+}
 
     
     // --------------- Process Top Detection Result ---------------
@@ -236,32 +229,32 @@ function processTopDetectionResult(results) {
         return;
     }
 
-    // Get the required object for the active cell (e.g. "flower")
-    const requiredObject = correctAnswers[activeCellId];
-    // Get allowed labels from CLASS_MAPPING (e.g. ["daisy", "sunflower"...])
-    const allowedLabels = CLASS_MAPPING[requiredObject] || [requiredObject];
+        // Get the required object for the active cell (e.g. "flower")
+        const requiredObject = correctAnswers[activeCellId];
+        // Get allowed labels from CLASS_MAPPING (e.g. ["daisy", "sunflower"...])
+        const allowedLabels = CLASS_MAPPING[requiredObject] || [requiredObject];
 
-    // Sort results by confidence score (highest first)
-    const sortedResults = results.sort((a, b) => b.score - a.score);
-    
-    // Check top 3 predictions for matches
-    const topPredictions = sortedResults.slice(0, 3);
-    const match = topPredictions.find(prediction => {
-        const predictionLabel = prediction.label.toLowerCase();
-        return allowedLabels.some(label => predictionLabel.includes(label));
-    });
+        // Sort results by confidence score (highest first)
+        const sortedResults = results.sort((a, b) => b.score - a.score);
+        
+        // Check top 3 predictions for matches
+        const topPredictions = sortedResults.slice(0, 3);
+        const match = topPredictions.find(prediction => {
+            const predictionLabel = prediction.label.toLowerCase();
+            return allowedLabels.some(label => predictionLabel.includes(label));
+        });
 
-    if (match && match.score > 0.65) { // 65% confidence threshold
-        detectionResultsElement.textContent = `Match found: ${match.label} (${(match.score * 100).toFixed(1)}% confidence)`;
-        markCellAsCompleted(activeCellId);
-        retryButton.style.display = 'none';
-        setTimeout(() => showPage(bingoPage), 1500);
-    } else {
-        const detectedLabels = topPredictions.map(p => p.label).join(', ');
-        errorMessageElement.textContent = `No ${requiredObject} found. Detected: ${detectedLabels}`;
-        retryButton.style.display = 'block';
+        if (match && match.score > 0.65) { // 65% confidence threshold
+            detectionResultsElement.textContent = `Match found: ${match.label} (${(match.score * 100).toFixed(1)}% confidence)`;
+            markCellAsCompleted(activeCellId);
+            retryButton.style.display = 'none';
+            setTimeout(() => showPage(bingoPage), 1500);
+        } else {
+            const detectedLabels = topPredictions.map(p => p.label).join(', ');
+            errorMessageElement.textContent = `No ${requiredObject} found. Detected: ${detectedLabels}`;
+            retryButton.style.display = 'block';
+        }
     }
-}
 
     // --------------- Mark Cell as Completed ---------------
     function markCellAsCompleted(cellId) {
@@ -293,10 +286,10 @@ function processTopDetectionResult(results) {
     // ---------------- Retry Capture -----------------
     function retryCapture() {
         initializeCamera();
-        capturedImageBase64 = null;
+        capturedImageBlob = null; // Changed from capturedImageBase64
         detectionResultsElement.textContent = '';
         errorMessageElement.textContent = '';
-        retryButton.style.display = 'none'; // Hide Retry Button when retrying
+        retryButton.style.display = 'none';
     }
 
     // ---------------- API Key Handlers -----------------
