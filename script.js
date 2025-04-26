@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const saveApiKeyButton = document.getElementById('save-api-key-btn');
     const closePopupButton = document.getElementById('close-popup-btn'); // Added close button reference
 
+
     const HUGGING_FACE_API_URL = "https://api-inference.huggingface.co/models/google/vit-base-patch16-224";
     let HUGGING_FACE_API_TOKEN = null;
     let mediaStream = null;
@@ -214,31 +215,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
     
     // --------------- Process Top Detection Result ---------------
-    function processTopDetectionResult(results) {
-        if (!results || results.length === 0) {
-            detectionResultsElement.textContent = 'No objects detected. Please retry.';
-            retryButton.style.display = 'block'; // Show Retry Button
-            return;
-        }
-
-        // Get the top result
-        const topResult = results.sort((a, b) => b.score - a.score)[0];
-        const { label, score } = topResult;
-
-        detectionResultsElement.textContent = `Detected: ${label} (Confidence: ${(score * 100).toFixed(2)}%)`;
-
-        // Check if the result matches the correct answer for the active cell
-        if (activeCellId && correctAnswers && CLASS_MAPPING[activeCellId] === label.toLowerCase()) {
-            markCellAsCompleted(activeCellId);
-            retryButton.style.display = 'none'; // Hide Retry Button if successful
-            setTimeout(() => {
-                showPage(bingoPage);
-            }, 1000);
-        } else {
-            errorMessageElement.textContent = `The detected object "${label}" does not match the required object (${correctAnswers[activeCellId]}).`;
-            retryButton.style.display = 'block'; // Show Retry Button
-        }
+function processTopDetectionResult(results) {
+    if (!results || results.length === 0) {
+        detectionResultsElement.textContent = 'No objects detected. Please retry.';
+        retryButton.style.display = 'block';
+        return;
     }
+
+    // Get the required object for the active cell (e.g. "flower")
+    const requiredObject = correctAnswers[activeCellId];
+    // Get allowed labels from CLASS_MAPPING (e.g. ["daisy", "sunflower"...])
+    const allowedLabels = CLASS_MAPPING[requiredObject] || [requiredObject];
+
+    // Sort results by confidence score (highest first)
+    const sortedResults = results.sort((a, b) => b.score - a.score);
+    
+    // Check top 3 predictions for matches
+    const topPredictions = sortedResults.slice(0, 3);
+    const match = topPredictions.find(prediction => {
+        const predictionLabel = prediction.label.toLowerCase();
+        return allowedLabels.some(label => predictionLabel.includes(label));
+    });
+
+    if (match && match.score > 0.65) { // 65% confidence threshold
+        detectionResultsElement.textContent = `Match found: ${match.label} (${(match.score * 100).toFixed(1)}% confidence)`;
+        markCellAsCompleted(activeCellId);
+        retryButton.style.display = 'none';
+        setTimeout(() => showPage(bingoPage), 1500);
+    } else {
+        const detectedLabels = topPredictions.map(p => p.label).join(', ');
+        errorMessageElement.textContent = `No ${requiredObject} found. Detected: ${detectedLabels}`;
+        retryButton.style.display = 'block';
+    }
+}
 
     // --------------- Mark Cell as Completed ---------------
     function markCellAsCompleted(cellId) {
