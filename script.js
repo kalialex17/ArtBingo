@@ -61,6 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let activeCellId = null; // Track which cell is currently active
 
+    let capturedImageBlob = null; // Replace capturedImageBase64 with this
 
     // ---------------- Page Management -----------------
     const bingoPage = document.getElementById("bingo-page");
@@ -130,100 +131,84 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ---------------- Capture Photo -----------------
     function capturePhoto() {
-        const maxWidth = 800; // Imposta una larghezza massima accettabile
-        const maxHeight = 600; // Imposta un'altezza massima accettabile
-    
+        const maxWidth = 800;
+        const maxHeight = 600;
+      
         const originalWidth = videoElement.videoWidth;
         const originalHeight = videoElement.videoHeight;
-    
+      
         let newWidth = originalWidth;
         let newHeight = originalHeight;
-    
-        // Ridimensionamento mantenendo le proporzioni
+      
         if (originalWidth > maxWidth || originalHeight > maxHeight) {
-            const aspectRatio = originalWidth / originalHeight;
-            if (originalWidth > originalHeight) {
-                newWidth = maxWidth;
-                newHeight = Math.round(maxWidth / aspectRatio);
-            } else {
-                newHeight = maxHeight;
-                newWidth = Math.round(maxHeight * aspectRatio);
-            }
+          const aspectRatio = originalWidth / originalHeight;
+          if (originalWidth > originalHeight) {
+            newWidth = maxWidth;
+            newHeight = Math.round(maxWidth / aspectRatio);
+          } else {
+            newHeight = maxHeight;
+            newWidth = Math.round(maxHeight * aspectRatio);
+          }
         }
-    
+      
         canvasElement.width = newWidth;
         canvasElement.height = newHeight;
         const context = canvasElement.getContext('2d');
         context.drawImage(videoElement, 0, 0, newWidth, newHeight);
-    
-        originalImage = new Image();
-        originalImage.src = canvasElement.toDataURL('image/jpeg');
-        capturedImageBase64 = canvasElement.toDataURL('image/jpeg').split(',')[1];
-    
+      
+        // Get image as Blob instead of base64
+        canvasElement.toBlob((blob) => {
+          capturedImageBlob = blob;
+        }, 'image/jpeg', 0.8);
+      
         cameraSection.style.display = 'none';
         resultSection.style.display = 'block';
-    
+      
         if (mediaStream) {
-            mediaStream.getTracks().forEach(track => track.stop());
+          mediaStream.getTracks().forEach(track => track.stop());
         }
-    }
+      }
     
 
    
     // ---------------- Detect Objects -----------------
     async function detectObjects() {
         if (!HUGGING_FACE_API_TOKEN) {
-            errorMessageElement.textContent = 'API key is missing. Please set the API key first.';
-            return;
+          errorMessageElement.textContent = 'API key is missing. Please set the API key first.';
+          return;
         }
-        if (!capturedImageBase64) {
-            errorMessageElement.textContent = 'No image captured. Please capture a photo first.';
-            return;
+        if (!capturedImageBlob) {
+          errorMessageElement.textContent = 'No image captured. Please capture a photo first.';
+          return;
         }
-    
+      
         try {
-            detectionResultsElement.textContent = 'Detecting objects... Please wait.';
-            errorMessageElement.textContent = '';
-    
-            // Convert base64 to blob
-            const byteString = atob(capturedImageBase64);
-            const mimeString = 'image/jpeg';
-            const ab = new ArrayBuffer(byteString.length);
-            const ia = new Uint8Array(ab);
-            for (let i = 0; i < byteString.length; i++) {
-                ia[i] = byteString.charCodeAt(i);
-            }
-            const blob = new Blob([ab], { type: mimeString });
-    
-            // Correct API request format
-            const response = await fetch(HUGGING_FACE_API_URL, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${HUGGING_FACE_API_TOKEN}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    inputs: capturedImageBase64 // Send raw base64 without 'data:image/jpeg;base64,' prefix
-                }),
-            });
-    
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error("Detailed API error:", errorData);
-                throw new Error(`API Error: ${errorData.error || response.statusText}`);
-            }
-    
-            const results = await response.json();
-            processTopDetectionResult(results);
-    
+          detectionResultsElement.textContent = 'Detecting objects... Please wait.';
+          errorMessageElement.textContent = '';
+      
+          const response = await fetch(HUGGING_FACE_API_URL, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${HUGGING_FACE_API_TOKEN}`,
+              'Content-Type': 'image/jpeg'
+            },
+            body: capturedImageBlob // Send raw image bytes
+          });
+      
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorText}`);
+          }
+      
+          const results = await response.json();
+          processTopDetectionResult(results);
+      
         } catch (error) {
-            console.error('Full error:', error);
-            errorMessageElement.innerHTML = `<span class="error">Detection Failed:</span><br>
-                                           ${error.message}<br>
-                                           (Check console for details)`;
-            detectionResultsElement.textContent = '';
+          console.error('Detection error:', error);
+          errorMessageElement.textContent = `Detection failed: ${error.message}`;
+          detectionResultsElement.textContent = '';
         }
-    }
+      }
 
     
     // --------------- Process Top Detection Result ---------------
