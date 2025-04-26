@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const closePopupButton = document.getElementById('close-popup-btn'); // Added close button reference
 
 
-    const HUGGING_FACE_API_URL = "https://corsproxy.io/?https://api-inference.huggingface.co/models/google/vit-base-patch16-224";
+    const HUGGING_FACE_API_URL = "https://api.allorigins.win/raw?url=https://api-inference.huggingface.co/models/google/vit-base-patch16-224";
     let HUGGING_FACE_API_TOKEN = null;
     let mediaStream = null;
     let capturedImageBase64 = null;
@@ -181,7 +181,24 @@ document.addEventListener("DOMContentLoaded", () => {
           errorMessageElement.textContent = 'No image captured. Please capture a photo first.';
           return;
         }
-      
+        try {
+            // Convert Blob to base64
+            const reader = new FileReader();
+            reader.readAsDataURL(capturedImageBlob);
+            
+            const base64data = await new Promise((resolve) => {
+              reader.onloadend = () => resolve(reader.result.split(',')[1]);
+            });
+        
+            const response = await fetch(HUGGING_FACE_API_URL, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${HUGGING_FACE_API_TOKEN}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ inputs: base64data })
+            });
+        
         try {
           detectionResultsElement.textContent = 'Detecting objects... Please wait.';
           errorMessageElement.textContent = '';
