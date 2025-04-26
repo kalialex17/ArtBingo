@@ -229,7 +229,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     
     // --------------- Process Top Detection Result ---------------
-function processTopDetectionResult(results) {
+    function processTopDetectionResult(results) {
     if (!results || results.length === 0) {
         detectionResultsElement.textContent = 'No objects detected. Please retry.';
         retryButton.style.display = 'block';
@@ -261,7 +261,7 @@ function processTopDetectionResult(results) {
         errorMessageElement.textContent = `No ${requiredObject} found. Detected: ${detectedLabels}`;
         retryButton.style.display = 'block';
     }
-}
+    }
 
     // --------------- Mark Cell as Completed ---------------
     function markCellAsCompleted(cellId) {
