@@ -48,15 +48,15 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const isCellCompleted = {
-        'cell-1': false,
-        'cell-2': false,
-        'cell-3': false,
-        'cell-4': false,
-        'cell-5': false,
-        'cell-6': false,
-        'cell-7': false,
-        'cell-8': false,
-        'cell-9': false
+        'cell-1': true,
+        'cell-2': true,
+        'cell-3': true,
+        'cell-4': true,
+        'cell-5': true,
+        'cell-6': true,
+        'cell-7': true,
+        'cell-8': true,
+        'cell-9': true
     };
 
     let activeCellId = null; // Track which cell is currently active
