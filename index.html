@@ -3,44 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AI ART BINGO</title>
+  <title>Test Bingo</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
 </head>
 <body>
-  <div id="bingo-page" class="page active">
-    <button class="home-btn" style="display: none;">Home</button>
-    <h1>AI ART BINGO</h1>
-    <div id="bingo-grid">
-      <div id="cell-1" class="grid-cell" data-target="camera">Find a flower</div>
-      <div id="cell-2" class="grid-cell" data-target="camera">Find a candle</div>
-      <div id="cell-3" class="grid-cell" data-target="camera">Find a person</div>
-      <div id="cell-4" class="grid-cell" data-target="camera">Find a cross</div>
-      <div id="cell-5" class="grid-cell" data-target="camera">Find a bed</div>
-      <div id="cell-6" class="grid-cell" data-target="camera">Find a bottle</div>
-      <div id="cell-7" class="grid-cell" data-target="camera">Find a book</div>
-      <div id="cell-8" class="grid-cell" data-target="camera">Find a chair</div>
-      <div id="cell-9" class="grid-cell" data-target="camera">Find stairs</div>
-    </div>
-    <button id="api-key-btn">Set API Key</button>
-    <div id="point-board">
-      <h2>Points</h2>
-      <p id="points">0</p>
-    </div>
-    <div id="chrono-board">
-      <h2>Time</h2>
-      <p id="chrono">0:00</p>
-    </div>
-  </div>
+  <script>document.documentElement.classList.add('js-loaded');</script>
 
-  <div id="camera-page" class="page">
-    <button class="home-btn" id="home-btn">Home</button>
-    <h1>Camera Capture & Object Detection</h1>
-    <div id="camera-section">
-      <video id="camera-preview" autoplay playsinline></video>
-      <button id="capture-btn">Capture Photo</button>
-    </div>
-    <div id="result-section" style="display: none;">
-      <canvas id="captured-image"></canvas>
+  <h1>Hello from AI Art Bingo</h1>
+  <p>If you can see this, HTML and CSS are working!</p>
+</body>
+</html>
