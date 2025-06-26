@@ -48,11 +48,19 @@ document.addEventListener("DOMContentLoaded", () => {
   function show(page) {
     document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
     page.classList.add("active");
+
+    if (page === pageBingo) {
+      btnHomes.forEach(btn => btn.classList.add("hidden"));
+    } else {
+      btnHomes.forEach(btn => btn.classList.remove("hidden"));
+    }
+
   }
   btnHomes.forEach(btn =>
     btn.addEventListener("click", () => {
       clearInterval(intervalId);
       intervalId = null;
+      activeCell = null;
       show(pageBingo);
     })
   );
@@ -126,12 +134,18 @@ document.addEventListener("DOMContentLoaded", () => {
     msgError.textContent = "";
 
     try {
-      const url = await uploadToImgur(blobImage);
+      // Convert blob to base64
+      const base64Image = await blobToBase64(blobImage);
+
       const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ api_key: API_KEY, inputs: { image: { type: "url", value: url } } })
+        body: JSON.stringify({
+          api_key: API_KEY,
+          inputs: { image: { type: "base64", value: base64Image } }
+        })
       });
+
       const data = await res.json();
       handleResult(data);
     } catch (e) {
@@ -140,6 +154,18 @@ document.addEventListener("DOMContentLoaded", () => {
       btnDetect.disabled = false;
     }
   }
+
+  // Helper to convert Blob to Base64
+  function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result.split(",")[1]); // Remove data:image/...;base64, header
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
+
   async function uploadToImgur(b) {
     const fd = new FormData();
     fd.append("image", b);
