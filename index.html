@@ -1,78 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI ART BINGO</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI ART BINGO</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
 </head>
 <body>
-    <!-- Bingo Grid Page -->
-    <div id="bingo-page" class="page active">
-        <button class="home-btn" style="display: none;">Home</button> <!-- Hidden on the home page -->
-        <h1>AI ART BINGO</h1>
-        <div id="bingo-grid">
-            <div id="cell-1" class="grid-cell" data-target="camera">Find a flower</div>
-            <div id="cell-2" class="grid-cell" data-target="camera">Find a candle</div>
-            <div id="cell-3" class="grid-cell" data-target="camera">Find a person</div>
-            <div id="cell-4" class="grid-cell" data-target="camera">Find a cross</div>
-            <div id="cell-5" class="grid-cell" data-target="camera">Find a bed</div>
-            <div id="cell-6" class="grid-cell" data-target="camera">Find a bottle</div>
-            <div id="cell-7" class="grid-cell" data-target="camera">Find a book</div>
-            <div id="cell-8" class="grid-cell" data-target="camera">Find a chair</div>
-            <div id="cell-9" class="grid-cell" data-target="camera">Find stairs</div>
-        </div>
-        <button id="api-key-btn">Set API Key</button>
+  <div id="bingo-page" class="page active">
+    <button class="home-btn" style="display: none;">Home</button>
+    <h1>AI ART BINGO</h1>
+    <div id="bingo-grid">
+      <!-- Grid cells here -->
+      <div id="cell-1" class="grid-cell" data-target="camera">Find a flower</div>
+      <div id="cell-2" class="grid-cell" data-target="camera">Find a candle</div>
+      <div id="cell-3" class="grid-cell" data-target="camera">Find a person</div>
+      <div id="cell-4" class="grid-cell" data-target="camera">Find a cross</div>
+      <div id="cell-5" class="grid-cell" data-target="camera">Find a bed</div>
+      <div id="cell-6" class="grid-cell" data-target="camera">Find a bottle</div>
+      <div id="cell-7" class="grid-cell" data-target="camera">Find a book</div>
+      <div id="cell-8" class="grid-cell" data-target="camera">Find a chair</div>
+      <div id="cell-9" class="grid-cell" data-target="camera">Find stairs</div>
+    </div>
+    <button id="api-key-btn">Set API Key</button>
 
-        <div id="point-board">
-            <h2>Points</h2>
-            <p id="points">0</p>
-        </div>
-
-        <div id="chrono-board">
-            <h2>Time</h2>
-            <p id="chrono">0:00</p>
-        </div>
+    <div id="point-board">
+      <h2>Points</h2>
+      <p id="points">0</p>
     </div>
 
-    <!-- Camera Page -->
-    <div id="camera-page" class="page">
-        <button class="home-btn" id="home-btn">Home</button>
-        <h1>Camera Capture & Object Detection</h1>
-        <div id="camera-section">
-            <video id="camera-preview" autoplay playsinline></video>
-            <button id="capture-btn">Capture Photo</button>
-        </div>
-        <!-- Result Section -->
-        <div id="result-section" style="display: none;">
-            <canvas id="captured-image"></canvas>
-            <p id="detection-results"></p>
-            <p id="error-message"></p>
-            <button id="detect-btn">Detect Objects</button>
-            <button id="retry-btn">Retry</button>
-        </div>
+    <div id="chrono-board">
+      <h2>Time</h2>
+      <p id="chrono">0:00</p>
     </div>
+  </div>
 
-    <!-- Win Page -->
-    <div id="win-page" class="page">
-        <h1>You win !</h1>
-        <p id="win-message">You found all the objects in <span id="time-taken">0:00</span> minutes</p>
+  <div id="camera-page" class="page">
+    <button class="home-btn" id="home-btn">Home</button>
+    <h1>Camera Capture & Object Detection</h1>
+    <div id="camera-section">
+      <video id="camera-preview" autoplay playsinline></video>
+      <button id="capture-btn">Capture Photo</button>
     </div>
-
-    <!-- API Key Popup -->
-    <div id="api-key-popup" style="display: none;">
-        <div class="popup-content">
-            <label for="api-key-input">Enter your API Key:</label>
-            <input type="text" id="api-key-input" placeholder="API Key">
-            <button id="save-api-key-btn">Save</button>
-            <button id="close-popup-btn">Close</button>
-        </div>
+    <div id="result-section" style="display: none;">
+      <canvas id="captured-image">Your browser does not support canvas.</canvas>
+      <p id="detection-results"></p>
+      <p id="error-message"></p>
+      <button id="detect-btn">Detect Objects</button>
+      <button id="retry-btn">Retry</button>
     </div>
+  </div>
 
-    <script src="script.js"></script>
+  <div id="win-page" class="page">
+    <h1>You win!</h1>
+    <p id="win-message">You found all the objects in <span id="time-taken">0:00</span> minutes</p>
+  </div>
+
+  <div id="api-key-popup" style="display: none;">
+    <div class="popup-content">
+      <label for="api-key-input">Enter your API Key:</label>
+      <input type="text" id="api-key-input" placeholder="API Key" />
+      <button id="save-api-key-btn">Save</button>
+      <button id="close-popup-btn">Close</button>
+    </div>
+  </div>
+
+  <script>document.documentElement.classList.add('js-loaded');</script>
+  <script src="script.js"></script>
 </body>
 </html>
