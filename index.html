@@ -3,13 +3,67 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Test Bingo</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <script>document.documentElement.classList.add('js-loaded');</script>
+  <title>AI Art Bingo</title>
 
-  <h1>Hello from AI Art Bingo</h1>
-  <p>If you can see this, HTML and CSS are working!</p>
+  <!-- Fonts & Styles -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css"/>
+</head>
+
+<body>
+  <!-- BINGO PAGE -->
+  <section id="bingo-page" class="page active">
+    <button type="button" class="home-btn" aria-label="Go Home" hidden>Home</button>
+    <h1>AI Art Bingo</h1>
+
+    <div id="bingo-grid" role="grid">
+      <!-- Consider generating these cells in JS -->
+      <button type="button" id="cell-1" class="grid-cell" data-target="camera">Find a flower</button>
+      <button type="button" id="cell-2" class="grid-cell" data-target="camera">Find a candle</button>
+      <button type="button" id="cell-3" class="grid-cell" data-target="camera">Find a person</button>
+      <button type="button" id="cell-4" class="grid-cell" data-target="camera">Find a cross</button>
+      <button type="button" id="cell-5" class="grid-cell" data-target="camera">Find a bed</button>
+      <button type="button" id="cell-6" class="grid-cell" data-target="camera">Find a bottle</button>
+      <button type="button" id="cell-7" class="grid-cell" data-target="camera">Find a book</button>
+      <button type="button" id="cell-8" class="grid-cell" data-target="camera">Find a chair</button>
+      <button type="button" id="cell-9" class="grid-cell" data-target="camera">Find stairs</button>
+    </div>
+
+    <button type="button" id="api-key-btn">Set API Key</button>
+
+    <div id="point-board">
+      <h2>Points</h2>
+      <p id="points">0</p>
+    </div>
+
+    <div id="chrono-board">
+      <h2>Time</h2>
+      <p id="chrono">0:00</p>
+    </div>
+  </section>
+
+  <!-- CAMERA & DETECTION PAGE -->
+  <section id="camera-page" class="page">
+    <button type="button" class="home-btn" id="back-home-btn" aria-label="Go Home">Home</button>
+    <h1>Camera Capture &amp; Object Detection</h1>
+
+    <div id="camera-section">
+      <video id="camera-preview" autoplay playsinline></video>
+      <button type="button" id="capture-btn">Capture Photo</button>
+    </div>
+
+    <div id="result-section" hidden>
+      <canvas id="captured-image" aria-label="Captured photo"></canvas>
+      <!-- you'll probably inject detection results here -->
+    </div>
+  </section>
+
+  <!-- Your JS goes here -->
+  <script src="app.js" type="module"></script>
 </body>
 </html>
