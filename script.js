@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // ——— Helper to grab elements or fail fast ———
+  // ——— Helper to grab or crash ———
   function $(id) {
     const el = document.getElementById(id);
     if (!el) throw new Error(`Missing #${id} in HTML`);
@@ -7,243 +7,206 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ——— DOM ELEMENTS ———
-  const videoElement            = $("camera-preview");
-  const canvasElement           = $("captured-image");
-  const captureButton           = $("capture-btn");
-  const detectButton            = $("detect-btn");
-  const retryButton             = $("retry-btn");
-  const errorMessageElement     = $("error-message");
-  const detectionResultsElement = $("detection-results");
-  const cameraSection           = $("camera-section");
-  const resultSection           = $("result-section");
-  const bingoPage               = $("bingo-page");
-  const cameraPage              = $("camera-page");
-  const winPage                 = $("win-page");
-  const pointsLabel             = $("points");
-  const chronoLabel             = $("chrono");
-  const timeTakenLabel          = $("time-taken");
-  const gridCells               = Array.from(document.querySelectorAll(".grid-cell"));
-  const homeButtons             = document.querySelectorAll(".home-btn");
+  const videoEl       = $("camera-preview");
+  const canvasEl      = $("captured-image");
+  const btnCapture    = $("capture-btn");
+  const btnDetect     = $("detect-btn");
+  const btnRetry      = $("retry-btn");
+  const msgError      = $("error-message");
+  const msgResults    = $("detection-results");
+  const secCamera     = $("camera-section");
+  const secResult     = $("result-section");
+  const pageBingo     = $("bingo-page");
+  const pageCamera    = $("camera-page");
+  const pageWin       = $("win-page");
+  const lblPoints     = $("points");
+  const lblChrono     = $("chrono");
+  const lblTimeTaken  = $("time-taken");
+  const cells         = Array.from(document.querySelectorAll(".grid-cell"));
+  const btnHomes      = document.querySelectorAll(".home-btn");
 
   // ——— STATE ———
-  const ROBOFLOW_API_URL = "https://serverless.roboflow.com/infer/workflows/art-bingo/detect-and-classify";
-  const ROBOFLOW_API_KEY = "2GJiBuhHo2eal3cjfv4n";
-  let mediaStream = null;
-  let capturedImageBlob = null;
-  let activeCellId = null;
-  let points = 0;
-  let chrono = 0;
-  let timerInterval = null;
+  const API_URL = "https://serverless.roboflow.com/infer/workflows/art-bingo/detect-and-classify";
+  const API_KEY = "2GJiBuhHo2eal3cjfv4n";
+  let stream      = null;
+  let blobImage   = null;
+  let activeCell  = null;
+  let points      = 0;
+  let chrono      = 0;
+  let intervalId  = null;
 
-  const correctAnswers = {
-    "cell-1": "flower",
-    "cell-2": "candle",
-    "cell-3": "person",
-    "cell-4": "cross",
-    "cell-5": "bed",
-    "cell-6": "bottle",
-    "cell-7": "book",
-    "cell-8": "chair",
-    "cell-9": "stairs"
+  const answers = {
+    "cell-1": "flower", "cell-2": "candle", "cell-3": "person",
+    "cell-4": "cross",  "cell-5": "bed",    "cell-6": "bottle",
+    "cell-7": "book",   "cell-8": "chair",  "cell-9": "stairs"
   };
-
-  const isCellCompleted = Object.fromEntries(
-    Object.keys(correctAnswers).map(key => [key, false])
+  const done = Object.fromEntries(
+    Object.keys(answers).map(k => [k, false])
   );
 
-  // ——— NAVIGATION ———
-  function showPage(page) {
+  // ——— NAV ———
+  function show(page) {
     document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
     page.classList.add("active");
   }
-
-  homeButtons.forEach(btn => {
+  btnHomes.forEach(btn =>
     btn.addEventListener("click", () => {
-      clearInterval(timerInterval);
-      timerInterval = null;
-      showPage(bingoPage);
-    });
-  });
+      clearInterval(intervalId);
+      intervalId = null;
+      show(pageBingo);
+    })
+  );
 
-  // ——— TIMER & POINTS ———
-  function startTime() {
-    if (timerInterval) return;
-    timerInterval = setInterval(() => {
+  // ——— TIMER / POINTS ———
+  function startTimer() {
+    if (intervalId) return;
+    intervalId = setInterval(() => {
       chrono++;
-      const m = Math.floor(chrono / 60);
-      const s = chrono % 60;
-      chronoLabel.textContent = `${m}:${s < 10 ? "0" + s : s}`;
+      const m = Math.floor(chrono/60), s = chrono%60;
+      lblChrono.textContent = `${m}:${s<10? "0"+s : s}`;
     }, 1000);
   }
-
   function updatePoints() {
-    pointsLabel.textContent = points;
+    lblPoints.textContent = points;
   }
-
-  function startGame() {
-    clearInterval(timerInterval);
-    timerInterval = null;
-    points = 0;
-    chrono = 0;
-    Object.keys(isCellCompleted).forEach(k => isCellCompleted[k] = false);
-    gridCells.forEach(c => {
+  function resetGame() {
+    clearInterval(intervalId); intervalId = null;
+    points = 0; chrono = 0;
+    Object.keys(done).forEach(k => done[k] = false);
+    cells.forEach(c => {
       c.classList.remove("completed");
-      c.addEventListener("click", handleCellClick);
+      c.addEventListener("click", onCellClick);
     });
     updatePoints();
-    chronoLabel.textContent = "0:00";
-    showPage(bingoPage);
+    lblChrono.textContent = "0:00";
+    show(pageBingo);
   }
 
-  // ——— CAMERA FLOW ———
-  function stopCamera() {
-    if (mediaStream) {
-      mediaStream.getTracks().forEach(t => t.stop());
-      mediaStream = null;
-    }
-  }
-
-  async function initializeCamera() {
+  // ——— CAMERA ———
+  async function startCamera() {
     stopCamera();
-    errorMessageElement.textContent = "";
-    detectionResultsElement.textContent = "";
-    cameraSection.style.display = "block";
-    resultSection.style.display = "none";
+    msgError.textContent = "";
+    msgResults.textContent = "";
+    secCamera.style.display = "block";
+    secResult.classList.add("hidden");
 
     try {
-      mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" }
-      });
-      videoElement.srcObject = mediaStream;
-    } catch (err) {
-      errorMessageElement.textContent = `Camera access error: ${err.message}`;
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+      videoEl.srcObject = stream;
+    } catch (e) {
+      msgError.textContent = `Camera error: ${e.message}`;
     }
   }
+  function stopCamera() {
+    if (stream) {
+      stream.getTracks().forEach(t => t.stop());
+      stream = null;
+    }
+  }
+  function onCapture() {
+    const ctx = canvasEl.getContext("2d");
+    canvasEl.width  = videoEl.videoWidth;
+    canvasEl.height = videoEl.videoHeight;
+    ctx.drawImage(videoEl, 0, 0);
 
-  function capturePhoto() {
-    const ctx = canvasElement.getContext("2d");
-    canvasElement.width  = videoElement.videoWidth;
-    canvasElement.height = videoElement.videoHeight;
-    ctx.drawImage(videoElement, 0, 0);
-
-    canvasElement.toBlob(blob => {
-      capturedImageBlob = blob;
-    }, "image/jpeg", 0.9);
-
-    cameraSection.style.display = "none";
-    resultSection.style.display = "block";
+    canvasEl.toBlob(b => blobImage = b, "image/jpeg", 0.9);
+    secCamera.style.display = "none";
+    secResult.classList.remove("hidden");
     stopCamera();
   }
 
-  // ——— DETECTION ———
-  async function detectObjects() {
-    if (!capturedImageBlob) {
-      errorMessageElement.textContent = "No image captured.";
+  // ——— DETECT ———
+  async function onDetect() {
+    if (!blobImage) {
+      msgError.textContent = "No image to analyze.";
       return;
     }
-
-    detectButton.disabled = true;
-    detectionResultsElement.textContent = "Detecting objects…";
-    errorMessageElement.textContent = "";
+    btnDetect.disabled = true;
+    msgResults.textContent = "Detecting…";
+    msgError.textContent = "";
 
     try {
-      const imageUrl = await uploadImageToImgur(capturedImageBlob);
-      const resp = await fetch(ROBOFLOW_API_URL, {
+      const url = await uploadToImgur(blobImage);
+      const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          api_key: ROBOFLOW_API_KEY,
-          inputs: { image: { type: "url", value: imageUrl } }
-        })
+        body: JSON.stringify({ api_key: API_KEY, inputs: { image: { type: "url", value: url } } })
       });
-      const result = await resp.json();
-      processDetectionResult(result);
-    } catch (err) {
-      errorMessageElement.textContent = `Detection failed: ${err.message}`;
+      const data = await res.json();
+      handleResult(data);
+    } catch (e) {
+      msgError.textContent = `Detection failed: ${e.message}`;
     } finally {
-      detectButton.disabled = false;
+      btnDetect.disabled = false;
     }
   }
-
-  async function uploadImageToImgur(blob) {
-    const formData = new FormData();
-    formData.append("image", blob);
-    const res = await fetch("https://api.imgur.com/3/image", {
+  async function uploadToImgur(b) {
+    const fd = new FormData();
+    fd.append("image", b);
+    const r = await fetch("https://api.imgur.com/3/image", {
       method: "POST",
       headers: { Authorization: "Client-ID 1e3f7ff17203f12" },
-      body: formData
+      body: fd
     });
-    const data = await res.json();
-    return data.data.link;
+    const js = await r.json();
+    return js.data.link;
   }
-
-  function processDetectionResult(result) {
-    const target = correctAnswers[activeCellId];
-    const preds  = result.results?.[0]?.predictions || [];
-    const match  = preds.find(p => 
+  function handleResult(res) {
+    const target = answers[activeCell];
+    const preds  = res.results?.[0]?.predictions || [];
+    const found  = preds.find(p =>
       p.class.toLowerCase().includes(target) && p.confidence > 0.5
     );
 
-    if (match) {
-      detectionResultsElement.textContent = 
-        `Match: ${match.class} (${(match.confidence * 100).toFixed(1)}%)`;
-      markCellAsCompleted(activeCellId);
-      retryButton.style.display = "none";
-      setTimeout(() => showPage(bingoPage), 1500);
+    if (found) {
+      msgResults.textContent =
+        `✔ ${found.class} (${(found.confidence*100).toFixed(1)}%)`;
+      markDone(activeCell);
+      btnRetry.classList.add("hidden");
+      setTimeout(()=> show(pageBingo), 1200);
     } else {
-      errorMessageElement.textContent = `No ${target} found.`;
-      retryButton.style.display = "block";
+      msgError.textContent = `No ${target} found.`;
+      btnRetry.classList.remove("hidden");
     }
   }
 
-  function markCellAsCompleted(cellId) {
-    const cell = document.getElementById(cellId);
-    if (!cell || isCellCompleted[cellId]) return;
-
+  // ——— MARK / WIN ———
+  function markDone(id) {
+    if (done[id]) return;
+    const cell = document.getElementById(id);
     cell.classList.add("completed");
-    cell.removeEventListener("click", handleCellClick);
-    isCellCompleted[cellId] = true;
-    points += 10;
-    updatePoints();
+    cell.removeEventListener("click", onCellClick);
+    done[id] = true;
+    points += 10; updatePoints();
 
-    if (Object.values(isCellCompleted).every(Boolean)) {
-      clearInterval(timerInterval);
-      timerInterval = null;
-
-      const m = Math.floor(chrono / 60);
-      const s = chrono % 60;
-      timeTakenLabel.textContent = 
-        `${m}:${s < 10 ? "0" + s : s}`;
-
-      setTimeout(() => showPage(winPage), 2000);
+    if (Object.values(done).every(v => v)) {
+      clearInterval(intervalId); intervalId = null;
+      const m = Math.floor(chrono/60), s = chrono % 60;
+      lblTimeTaken.textContent = `${m}:${s<10?"0"+s:s}`;
+      setTimeout(()=> show(pageWin), 1000);
     }
   }
 
-  function retryCapture() {
-    capturedImageBlob = null;
-    detectionResultsElement.textContent = "";
-    errorMessageElement.textContent = "";
-    retryButton.style.display = "none";
-    initializeCamera();
+  // ——— EVENTS ———
+  function onCellClick(e) {
+    const id = e.currentTarget.id;
+    if (done[id] || activeCell) return;
+    activeCell = id;
+    startTimer();
+    show(pageCamera);
+    startCamera();
   }
+  cells.forEach(c => c.addEventListener("click", onCellClick));
+  btnCapture.addEventListener("click", onCapture);
+  btnDetect.addEventListener("click", onDetect);
+  btnRetry.addEventListener("click", () => {
+    blobImage = null;
+    msgResults.textContent = "";
+    msgError.textContent = "";
+    btnRetry.classList.add("hidden");
+    startCamera();
+  });
 
-  // ——— CELL CLICK HANDLER ———
-  function handleCellClick(e) {
-    const cell = e.currentTarget;
-    if (isCellCompleted[cell.id] || activeCellId) return;
-
-    activeCellId = cell.id;
-    startTime();
-    showPage(cameraPage);
-    initializeCamera();
-  }
-
-  // ——— EVENT BINDINGS ———
-  gridCells.forEach(cell => cell.addEventListener("click", handleCellClick));
-  captureButton.addEventListener("click", capturePhoto);
-  detectButton.addEventListener("click", detectObjects);
-  retryButton.addEventListener("click", retryCapture);
-
-  // ——— LAUNCH ———
-  startGame();
+  // ——— INIT ———
+  resetGame();
 });
