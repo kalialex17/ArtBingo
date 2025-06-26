@@ -1,17 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="js-loaded">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AI Art Bingo</title>
 
-  <!-- Fonts & Styles -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link
     href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap"
     rel="stylesheet"
   />
+
+  <!-- Styles -->
   <link rel="stylesheet" href="style.css"/>
 </head>
 
@@ -22,16 +24,15 @@
     <h1>AI Art Bingo</h1>
 
     <div id="bingo-grid" role="grid">
-      <!-- Consider generating these cells in JS -->
-      <button type="button" id="cell-1" class="grid-cell" data-target="camera">Find a flower</button>
-      <button type="button" id="cell-2" class="grid-cell" data-target="camera">Find a candle</button>
-      <button type="button" id="cell-3" class="grid-cell" data-target="camera">Find a person</button>
-      <button type="button" id="cell-4" class="grid-cell" data-target="camera">Find a cross</button>
-      <button type="button" id="cell-5" class="grid-cell" data-target="camera">Find a bed</button>
-      <button type="button" id="cell-6" class="grid-cell" data-target="camera">Find a bottle</button>
-      <button type="button" id="cell-7" class="grid-cell" data-target="camera">Find a book</button>
-      <button type="button" id="cell-8" class="grid-cell" data-target="camera">Find a chair</button>
-      <button type="button" id="cell-9" class="grid-cell" data-target="camera">Find stairs</button>
+      <button type="button" id="cell-1" class="grid-cell">Find a flower</button>
+      <button type="button" id="cell-2" class="grid-cell">Find a candle</button>
+      <button type="button" id="cell-3" class="grid-cell">Find a person</button>
+      <button type="button" id="cell-4" class="grid-cell">Find a cross</button>
+      <button type="button" id="cell-5" class="grid-cell">Find a bed</button>
+      <button type="button" id="cell-6" class="grid-cell">Find a bottle</button>
+      <button type="button" id="cell-7" class="grid-cell">Find a book</button>
+      <button type="button" id="cell-8" class="grid-cell">Find a chair</button>
+      <button type="button" id="cell-9" class="grid-cell">Find stairs</button>
     </div>
 
     <button type="button" id="api-key-btn">Set API Key</button>
@@ -47,9 +48,9 @@
     </div>
   </section>
 
-  <!-- CAMERA & DETECTION PAGE -->
+  <!-- CAMERA PAGE -->
   <section id="camera-page" class="page">
-    <button type="button" class="home-btn" id="back-home-btn" aria-label="Go Home">Home</button>
+    <button type="button" class="home-btn" id="back-home-btn">Home</button>
     <h1>Camera Capture &amp; Object Detection</h1>
 
     <div id="camera-section">
@@ -57,13 +58,23 @@
       <button type="button" id="capture-btn">Capture Photo</button>
     </div>
 
-    <div id="result-section" hidden>
+    <div id="result-section" class="hidden">
       <canvas id="captured-image" aria-label="Captured photo"></canvas>
-      <!-- you'll probably inject detection results here -->
+      <p id="detection-results"></p>
+      <p id="error-message" class="error"></p>
+      <button type="button" id="detect-btn">Analyze</button>
+      <button type="button" id="retry-btn" class="hidden">Retry Photo</button>
     </div>
   </section>
 
-  <!-- Your JS goes here -->
-  <script src="app.js" type="module"></script>
+  <!-- WIN PAGE -->
+  <section id="win-page" class="page">
+    <h1>🎉 You Win! 🎉</h1>
+    <p>Your Time: <span id="time-taken">0:00</span></p>
+    <button type="button" class="home-btn">Play Again</button>
+  </section>
+
+  <!-- Script -->
+  <script src="script.js" type="module"></script>
 </body>
 </html>
