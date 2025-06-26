@@ -1,37 +1,32 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const ROBLOFLOW_API_URL = "https://detect.roboflow.com/YOUR_PROJECT_NAME/1";
-  let storedApiKey = localStorage.getItem("roboflowApiKey") || "";
-  let activeCellId = null;
-  let capturedImageBlob = null;
-  let points = 0;
-  let chrono = 0;
-  let timerInterval = null;
-
-  const video = document.getElementById("camera-preview");
-  const canvas = document.getElementById("captured-image");
-  const captureBtn = document.getElementById("capture-btn");
-  const detectBtn = document.getElementById("detect-btn");
-  const retryBtn = document.getElementById("retry-btn");
-  const detectionResults = document.getElementById("detection-results");
-  const errorMessage = document.getElementById("error-message");
+  // ------- DOM ELEMENTS -------
+  const videoElement = document.getElementById("camera-preview");
+  const canvasElement = document.getElementById("captured-image");
+  const captureButton = document.getElementById("capture-btn");
+  const detectButton = document.getElementById("detect-btn");
+  const retryButton = document.getElementById("retry-btn");
+  const errorMessageElement = document.getElementById("error-message");
+  const detectionResultsElement = document.getElementById("detection-results");
+  const cameraSection = document.getElementById("camera-section");
   const resultSection = document.getElementById("result-section");
-
-  const apiKeyPopup = document.getElementById("api-key-popup");
-  const apiKeyInput = document.getElementById("api-key-input");
-  const saveApiKeyBtn = document.getElementById("save-api-key-btn");
-  const closePopupBtn = document.getElementById("close-popup-btn");
-  const apiKeyBtn = document.getElementById("api-key-btn");
-
   const bingoPage = document.getElementById("bingo-page");
   const cameraPage = document.getElementById("camera-page");
   const winPage = document.getElementById("win-page");
   const pointsLabel = document.getElementById("points");
   const chronoLabel = document.getElementById("chrono");
   const timeTakenLabel = document.getElementById("time-taken");
-
   const gridCells = Array.from(document.querySelectorAll(".grid-cell"));
   const homeButtons = document.querySelectorAll(".home-btn");
 
+  // ------- STATE -------
+  const ROBOFLOW_API_URL = "https://serverless.roboflow.com/infer/workflows/art-bingo/detect-and-classify";
+  const ROBOFLOW_API_KEY = "2GJiBuhHo2eal3cjfv4n";
+  let mediaStream = null;
+  let capturedImageBlob = null;
+  let activeCellId = null;
+  let points = 0;
+  let chrono = 0;
+  let timerInterval = null;
   const correctAnswers = {
     "cell-1": "flower",
     "cell-2": "candle",
@@ -43,43 +38,131 @@ document.addEventListener("DOMContentLoaded", () => {
     "cell-8": "chair",
     "cell-9": "stairs",
   };
+  const isCellCompleted = Object.fromEntries(
+    Object.keys(correctAnswers).map(key => [key, false])
+  );
 
-  const CLASS_MAPPING = {
-    flower: ["daisy", "sunflower", "vase", "flower", "bouquet"],
-    candle: ["candle", "lantern", "candlestick"],
-    person: ["person", "man", "woman", "child", "face"],
-    cross: ["cross", "crucifix", "christian cross"],
-    bed: ["bed", "four-poster bed", "crib"],
-    bottle: ["bottle", "wine bottle", "perfume bottle", "vase"],
-    book: ["book", "notebook", "booklet", "bible"],
-    chair: ["chair", "folding chair", "rocking chair", "bench"],
-    stairs: ["stairway", "staircase", "steps"],
-  };
-
-  const isCellCompleted = Object.fromEntries(Object.keys(correctAnswers).map(k => [k, false]));
-
+  // ------- PAGE NAVIGATION -------
   function showPage(pageToShow) {
-    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
     pageToShow.classList.add("active");
   }
 
-  homeButtons.forEach(btn => {
-    btn.addEventListener("click", () => showPage(bingoPage));
+  homeButtons.forEach(button => {
+    button.addEventListener("click", () => showPage(bingoPage));
   });
 
+  // ------- TIMER & POINTS -------
   function startTime() {
     if (!timerInterval) {
       timerInterval = setInterval(() => {
         chrono++;
-        const m = Math.floor(chrono / 60);
-        const s = chrono % 60;
-        chronoLabel.innerText = `${m}:${s < 10 ? "0" + s : s}`;
+        const minutes = Math.floor(chrono / 60);
+        const seconds = chrono % 60;
+        chronoLabel.innerText = `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
       }, 1000);
     }
   }
 
   function updatePoints() {
     pointsLabel.innerText = points;
+  }
+
+  function startGame() {
+    points = 0;
+    chrono = 0;
+    pointsLabel.innerText = points;
+    chronoLabel.innerText = "0:00";
+    showPage(bingoPage);
+  }
+
+  // ------- CAMERA -------
+  function stopCamera() {
+    if (mediaStream) {
+      mediaStream.getTracks().forEach(track => track.stop());
+    }
+  }
+
+  async function initializeCamera() {
+    try {
+      stopCamera();
+      mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" }
+      });
+      videoElement.srcObject = mediaStream;
+      cameraSection.style.display = "block";
+      resultSection.style.display = "none";
+      detectionResultsElement.textContent = "";
+      errorMessageElement.textContent = "";
+    } catch (error) {
+      errorMessageElement.textContent = `Camera access error: ${error.message}`;
+    }
+  }
+
+  // ------- PHOTO CAPTURE -------
+  function capturePhoto() {
+    const context = canvasElement.getContext("2d");
+    canvasElement.width = videoElement.videoWidth;
+    canvasElement.height = videoElement.videoHeight;
+    context.drawImage(videoElement, 0, 0);
+    canvasElement.toBlob(blob => {
+      capturedImageBlob = blob;
+    }, "image/jpeg", 0.9);
+    cameraSection.style.display = "none";
+    resultSection.style.display = "block";
+    stopCamera();
+  }
+
+  // ------- OBJECT DETECTION -------
+  async function detectObjects() {
+    if (!capturedImageBlob) {
+      errorMessageElement.textContent = "No image captured.";
+      return;
+    }
+    try {
+      detectionResultsElement.textContent = "Detecting objects... Please wait.";
+      errorMessageElement.textContent = "";
+      const imageUrl = await uploadImageToImgur(capturedImageBlob);
+      const response = await fetch(ROBOFLOW_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          api_key: ROBOFLOW_API_KEY,
+          inputs: { image: { type: "url", value: imageUrl } }
+        })
+      });
+      const result = await response.json();
+      processDetectionResult(result);
+    } catch (error) {
+      errorMessageElement.textContent = `Detection failed: ${error.message}`;
+    }
+  }
+
+  async function uploadImageToImgur(blob) {
+    const formData = new FormData();
+    formData.append("image", blob);
+    const res = await fetch("https://api.imgur.com/3/image", {
+      method: "POST",
+      headers: { Authorization: "Client-ID 1e3f7ff17203f12" },
+      body: formData
+    });
+    const data = await res.json();
+    return data.data.link;
+  }
+
+  function processDetectionResult(result) {
+    const requiredObject = correctAnswers[activeCellId];
+    const predictions = result.results?.[0]?.predictions || [];
+    const match = predictions.find(pred => pred.class.toLowerCase().includes(requiredObject));
+    if (match && match.confidence > 0.5) {
+      detectionResultsElement.textContent = `Match: ${match.class} (${(match.confidence * 100).toFixed(1)}%)`;
+      markCellAsCompleted(activeCellId);
+      retryButton.style.display = "none";
+      setTimeout(() => showPage(bingoPage), 1500);
+    } else {
+      errorMessageElement.textContent = `No ${requiredObject} found.`;
+      retryButton.style.display = "block";
+    }
   }
 
   function markCellAsCompleted(cellId) {
@@ -91,112 +174,36 @@ document.addEventListener("DOMContentLoaded", () => {
       points += 10;
       updatePoints();
     }
-    if (Object.values(isCellCompleted).every(v => v)) {
-      const m = Math.floor(chrono / 60);
-      const s = chrono % 60;
-      timeTakenLabel.innerText = `${m}:${s < 10 ? "0" + s : s}`;
+    if (Object.values(isCellCompleted).every(Boolean)) {
+      const minutes = Math.floor(chrono / 60);
+      const seconds = chrono % 60;
+      timeTakenLabel.innerText = `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
       setTimeout(() => showPage(winPage), 2000);
     }
   }
 
-  function handleCellClick(e) {
-    activeCellId = e.target.id;
+  function retryCapture() {
+    capturedImageBlob = null;
+    detectionResultsElement.textContent = "";
+    errorMessageElement.textContent = "";
+    retryButton.style.display = "none";
+    initializeCamera();
+  }
+
+  function handleCellClick(event) {
+    const cell = event.target;
+    activeCellId = cell.id;
     startTime();
     showPage(cameraPage);
     initializeCamera();
   }
 
-  gridCells.forEach(cell => cell.addEventListener("click", handleCellClick));
-
-  function initializeCamera() {
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => video.srcObject = stream);
-  }
-
-  captureBtn.addEventListener("click", () => {
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0);
-    resultSection.style.display = "block";
-    canvas.toBlob(blob => {
-      capturedImageBlob = blob;
-    }, "image/jpeg");
+  gridCells.forEach(cell => {
+    cell.addEventListener("click", handleCellClick);
   });
 
-  detectBtn.addEventListener("click", () => {
-    if (!storedApiKey) {
-      alert("Please set your Roboflow API key.");
-      return;
-    }
-    if (!capturedImageBlob || !activeCellId) return;
-
-    const formData = new FormData();
-    formData.append("file", capturedImageBlob);
-
-    fetch(`${ROBLOFLOW_API_URL}?api_key=${storedApiKey}`, {
-      method: "POST",
-      body: formData
-    }).then(res => res.json())
-      .then(data => matchDetection(data.predictions))
-      .catch(err => {
-        errorMessage.innerText = `Detection error: ${err.message}`;
-        detectionResults.innerText = "";
-      });
-  });
-
-  function matchDetection(predictions) {
-    const required = correctAnswers[activeCellId];
-    const validLabels = CLASS_MAPPING[required] || [required];
-    const match = predictions.find(p => validLabels.some(label => p.class.toLowerCase().includes(label)));
-
-    if (match) {
-      drawBoxes(predictions);
-      detectionResults.innerText = `Matched: ${match.class}`;
-      markCellAsCompleted(activeCellId);
-      retryBtn.style.display = "none";
-      setTimeout(() => showPage(bingoPage), 1500);
-    } else {
-      const labels = predictions.map(p => p.class).join(", ");
-      errorMessage.innerText = `No match. Detected: ${labels}`;
-      retryBtn.style.display = "block";
-    }
-  }
-
-  function drawBoxes(predictions) {
-    const ctx = canvas.getContext("2d");
-    predictions.forEach(pred => {
-      ctx.strokeStyle = "#00FF00";
-      ctx.lineWidth = 2;
-      ctx.strokeRect(
-        pred.x - pred.width / 2,
-        pred.y - pred.height / 2,
-        pred.width,
-        pred.height
-      );
-      ctx.font = "14px Arial";
-      ctx.fillStyle = "#00FF00";
-      ctx.fillText(pred.class, pred.x - pred.width / 2, pred.y - pred.height / 2 - 5);
-    });
-  }
-
-  retryBtn.addEventListener("click", () => {
-    resultSection.style.display = "none";
-    initializeCamera();
-  });
-
-  apiKeyBtn.addEventListener("click", () => {
-    apiKeyPopup.style.display = "block";
-    apiKeyInput.value = storedApiKey;
-  });
-
-  saveApiKeyBtn.addEventListener("click", () => {
-    storedApiKey = apiKeyInput.value.trim();
-    localStorage.setItem("roboflowApiKey", storedApiKey);
-    apiKeyPopup.style.display = "none";
-  });
-
-  closePopupBtn.addEventListener("click", () => {
-    apiKeyPopup.style.display = "none";
-  });
+  startGame();
+  captureButton.addEventListener("click", capturePhoto);
+  detectButton.addEventListener("click", detectObjects);
+  retryButton.addEventListener("click", retryCapture);
 });
